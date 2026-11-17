@@ -9,7 +9,8 @@
  *   data       每位教师的完整数据（JSON，过长时自动拆到多列）
  *   积分总览    方便在表格里直接查看的积分明细（每次保存时自动刷新）
  *   classes    班级和分页的对应关系（程序用）
- *   每个班级一个分页：建班后第一次保存时自动创建，改名、删除班级时同步。
+ *   每个班级两个分页：「班名」放积分，「班名·阅读」放阅读打卡（两者互相独立）。
+ *   建班后第一次保存时自动创建，改名、删除班级时同步。
  *   分页内容由程序生成，只供查看，手动修改会在下次保存时被覆盖。
  */
 
@@ -169,7 +170,7 @@ function updateView(user, data) {
 }
 
 function classesSheet() {
-  return getSheet(SHEET_CLASSES, ['teacherId', 'classId', 'sheetId', 'className']);
+  return getSheet(SHEET_CLASSES, ['teacherId', 'classId', 'sheetId', 'className', 'readingSheetId']);
 }
 
 function cleanName(name) {
@@ -199,7 +200,7 @@ function syncClassTabs(user, data) {
   const others = rows.filter(function (r) { return String(r[0]) !== user.id; });
   const mine = {};
   rows.forEach(function (r) {
-    if (String(r[0]) === user.id) mine[String(r[1])] = { sheetId: Number(r[2]), name: String(r[3]) };
+    if (String(r[0]) === user.id) mine[String(r[1])] = { sheetId: Number(r[2]), name: String(r[3]), readingId: r[4] === '' ? -1 : Number(r[4]) };
   });
   const byId = {};
   ss.getSheets().forEach(function (s) { byId[s.getSheetId()] = s; });
@@ -214,18 +215,27 @@ function syncClassTabs(user, data) {
       sh.setName(uniqueTabName(ss, c.name, user, sh));
     }
     writeClassTab(sh, c);
-    next[c.id] = { sheetId: sh.getSheetId(), name: c.name };
+    let rs = old && byId[old.readingId];
+    if (!rs) {
+      rs = ss.insertSheet(uniqueTabName(ss, c.name + '·阅读', user, null));
+    } else if (old.name !== c.name) {
+      rs.setName(uniqueTabName(ss, c.name + '·阅读', user, rs));
+    }
+    writeReadingTab(rs, c);
+    next[c.id] = { sheetId: sh.getSheetId(), name: c.name, readingId: rs.getSheetId() };
   });
 
   Object.keys(mine).forEach(function (cid) {
-    if (!next[cid] && byId[mine[cid].sheetId]) ss.deleteSheet(byId[mine[cid].sheetId]);
+    if (next[cid]) return;
+    if (byId[mine[cid].sheetId]) ss.deleteSheet(byId[mine[cid].sheetId]);
+    if (byId[mine[cid].readingId]) ss.deleteSheet(byId[mine[cid].readingId]);
   });
 
-  const all = others.map(function (r) { return r.slice(0, 4); }).concat(Object.keys(next).map(function (cid) {
-    return [user.id, cid, String(next[cid].sheetId), next[cid].name];
+  const all = others.map(function (r) { return r.slice(0, 5); }).concat(Object.keys(next).map(function (cid) {
+    return [user.id, cid, String(next[cid].sheetId), next[cid].name, String(next[cid].readingId)];
   }));
-  if (reg.getLastRow() > 1) reg.getRange(2, 1, reg.getLastRow() - 1, 4).clearContent();
-  if (all.length) reg.getRange(2, 1, all.length, 4).setNumberFormat('@').setValues(all);
+  if (reg.getLastRow() > 1) reg.getRange(2, 1, reg.getLastRow() - 1, 5).clearContent();
+  if (all.length) reg.getRange(2, 1, all.length, 5).setNumberFormat('@').setValues(all);
 }
 
 /** 分页内容：学生 | 每项活动的次数 | 总分 */
@@ -241,6 +251,24 @@ function writeClassTab(sh, c) {
   sh.clearContents();
   const all = [header].concat(rows);
   sh.getRange(1, 1, all.length, 1).setNumberFormat('@');
+  sh.getRange(1, 1, all.length, header.length).setValues(all);
+  sh.getRange(1, 1, 1, header.length).setFontWeight('bold');
+  sh.setFrozenRows(1);
+}
+
+/** 阅读分页：学生 | 当前进度 | 完成轮数 | 总阅读量 | 最近打卡（与积分无关） */
+function writeReadingTab(sh, c) {
+  const header = ['学生', '当前进度（0-9）', '完成轮数', '总阅读量（本）', '最近打卡'];
+  const rows = (c.students || []).map(function (st) {
+    const r = st.reading || { progress: 0, rounds: 0, log: [] };
+    const log = r.log || [];
+    const last = log.length ? log[log.length - 1].date : '';
+    return [st.name, r.progress || 0, r.rounds || 0, (r.rounds || 0) * 10 + (r.progress || 0), last];
+  });
+  sh.clearContents();
+  const all = [header].concat(rows);
+  sh.getRange(1, 1, all.length, 1).setNumberFormat('@');
+  sh.getRange(1, 5, all.length, 1).setNumberFormat('@');
   sh.getRange(1, 1, all.length, header.length).setValues(all);
   sh.getRange(1, 1, 1, header.length).setFontWeight('bold');
   sh.setFrozenRows(1);

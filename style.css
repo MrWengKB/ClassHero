@@ -32,3 +32,14 @@ body{font-family:system-ui,sans-serif;min-height:100vh;background:linear-gradien
 .mtx{overflow-x:auto}.mtx table{border-collapse:collapse;width:100%}.mtx th,.mtx td{padding:6px;border:1px solid #E5E7EB;font-size:.7rem}.mtx th{background:#F3F4F6}
 .mtx .hasv{background:#D1FAE5;color:#2A9D8F}.mtx .total-row{background:#FEF3C7}.mtx .total-col{background:#FEF3C7;color:#92400E}
 #sync{position:fixed;left:12px;bottom:12px;font-size:.75rem;padding:4px 10px;border-radius:999px;background:#fff;border:2px solid #E5E7EB;color:#6B7280;z-index:60}#sync:empty{display:none}#sync.err{border-color:#E63946;color:#E63946;cursor:pointer}
+.nav button[data-v=reading]{--c:#9B5DE5;--l:#EDE9FE}
+.crd-r{border-color:#9B5DE5}.trd{color:#7C3AED}
+.rrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#F9FAFB;border:2px solid #E5E7EB;border-radius:.75rem;padding:10px;margin-bottom:8px}
+.rname{display:flex;align-items:center;gap:8px;min-width:110px}.rav{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#9B5DE5,#F15BB5);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700}
+.rbooks{display:flex;gap:4px;flex-wrap:wrap;flex:1}
+.rbk{width:32px;height:32px;border-radius:.5rem;border:2px solid #E5E7EB;background:#F3F4F6;cursor:pointer;font-size:.9rem;filter:grayscale(1);opacity:.6;transition:transform .15s}
+.rbk:hover{transform:scale(1.1);border-color:#FCD34D}.rbk.on{background:linear-gradient(135deg,#FBBF24,#F97316);border-color:#F59E0B;filter:none;opacity:1}
+.rbk.pop{animation:rpop .3s}@keyframes rpop{50%{transform:scale(1.25)}}
+.rmed{background:#FEF3C7;border:2px solid #FCD34D;border-radius:999px;padding:4px 12px;color:#B45309;white-space:nowrap}
+.rsts{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}.rst{border-radius:.75rem;padding:12px;text-align:center;font-size:.8rem}.rsn{font-size:1.5rem;font-weight:900}
+#toast{position:fixed;top:16px;left:50%;transform:translate(-50%,-80px);background:#2A9D8F;color:#fff;padding:10px 18px;border-radius:999px;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.15);transition:transform .3s;z-index:70}#toast.show{transform:translate(-50%,0)}
