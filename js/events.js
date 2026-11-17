@@ -1,0 +1,43 @@
+function bindEvents(){const lf=$('loginForm');if(lf){lf.onsubmit=e=>{e.preventDefault();const sys=JSON.parse(localStorage.getItem('chS')||'{}'),u=(sys.teachers||[]).find(t=>t.username===S.login.u&&t.password===S.login.p);if(u){S.user=u;S.loggedIn=1;S.login={u:'',p:''};load();render()}else alert('错误')};$('lu').oninput=e=>S.login.u=e.target.value;$('lp').oninput=e=>S.login.p=e.target.value}
+const rf=$('regForm');if(rf){rf.onsubmit=e=>{e.preventDefault();if(!S.reg.n||!S.reg.u||!S.reg.p){alert('请填写所有字段');return}const sys=JSON.parse(localStorage.getItem('chS')||'{}');if((sys.teachers||[]).find(t=>t.username===S.reg.u)){alert('用户名已存在');return}const nu={id:Date.now().toString(),username:S.reg.u,password:S.reg.p,name:S.reg.n};sys.teachers=[...(sys.teachers||[]),nu];localStorage.setItem('chS',JSON.stringify(sys));S.user=nu;S.loggedIn=1;S.reg={n:'',u:'',p:''};render()};$('rn').oninput=e=>S.reg.n=e.target.value;$('ru').oninput=e=>S.reg.u=e.target.value;$('rp').oninput=e=>S.reg.p=e.target.value}
+const lo=$('logout');if(lo)lo.onclick=()=>{S.loggedIn=0;S.user=null;S.data={activeClassId:null,classes:[],changes:0,lastBackup:0};render()};
+const fc=$('firstCls');if(fc)fc.onclick=()=>{S.modal='addClass';render()};
+const cd=$('clsDD');if(cd)cd.onclick=()=>{S.showDD=!S.showDD;render()};
+document.querySelectorAll('[data-sw]').forEach(b=>b.onclick=()=>{S.data.activeClassId=b.dataset.sw;S.showDD=0;render()});
+document.querySelectorAll('[data-ec]').forEach(b=>b.onclick=e=>{e.stopPropagation();const c=S.data.classes.find(x=>x.id===b.dataset.ec);S.edit=c;S.form.cls={name:c.name,color:c.color};S.modal='addClass';S.showDD=0;render()});
+document.querySelectorAll('[data-dc]').forEach(b=>b.onclick=e=>{e.stopPropagation();if(!confirm('确定？'))return;S.data.classes=S.data.classes.filter(c=>c.id!==b.dataset.dc);if(S.data.activeClassId===b.dataset.dc)S.data.activeClassId=S.data.classes[0]?.id||null;inc();render()});
+const acd=$('addClsDD');if(acd)acd.onclick=()=>{S.edit=null;S.form.cls={name:'',color:'bgb-c'};S.modal='addClass';S.showDD=0;render()};
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{S.view=b.dataset.v;S.selStu=null;render()});
+const aa=$('addAct');if(aa)aa.onclick=()=>{S.edit=null;S.form.act={name:'',icon:'Star',color:'bgb-c',pts:10};S.modal='addActivity';render()};
+const as=$('addStu');if(as)as.onclick=()=>{S.modal='addStudent';render()};
+const is=$('impStu');if(is)is.onclick=()=>{S.modal='importStudents';render()};
+document.querySelectorAll('[data-ea]').forEach(b=>b.onclick=()=>{const a=gActs().find(x=>x.id===b.dataset.ea);S.edit=a;S.form.act={name:a.name,icon:a.icon,color:a.color,pts:a.pointValue};S.modal='addActivity';render()});
+document.querySelectorAll('[data-da]').forEach(b=>b.onclick=()=>{if(!confirm('确定？'))return;const cls=gCls();cls.activities=cls.activities.filter(a=>a.id!==b.dataset.da);cls.students.forEach(s=>{delete s.activityCounts[b.dataset.da];delete s.activityHistory[b.dataset.da]});inc();render()});
+document.querySelectorAll('[data-ds]').forEach(b=>b.onclick=()=>{if(!confirm('确定？'))return;gCls().students=gCls().students.filter(s=>s.id!==parseFloat(b.dataset.ds));inc();render()});
+document.querySelectorAll('[data-dec]').forEach(b=>b.onclick=()=>{const[sid,aid]=b.dataset.dec.split('-'),s=gSts().find(x=>x.id===parseFloat(sid));if(s)s.activityCounts[aid]=Math.max(0,(s.activityCounts[aid]||0)-1);inc();render()});
+document.querySelectorAll('[data-inc]').forEach(b=>b.onclick=()=>{const[sid,aid]=b.dataset.inc.split('-'),s=gSts().find(x=>x.id===parseFloat(sid)),a=gActs().find(x=>x.id===aid);if(s&&a){s.activityCounts[aid]=(s.activityCounts[aid]||0)+1;if(!s.activityHistory[aid])s.activityHistory[aid]=[];s.activityHistory[aid].push({date:getDate(),count:1,points:a.pointValue})}inc();render()});
+document.querySelectorAll('[data-cnt]').forEach(i=>i.onchange=e=>{const[sid,aid]=i.dataset.cnt.split('-'),s=gSts().find(x=>x.id===parseFloat(sid));if(s)s.activityCounts[aid]=Math.max(0,parseInt(e.target.value)||0);inc();render()});
+const cn=$('clsName');if(cn)cn.oninput=e=>S.form.cls.name=e.target.value;
+document.querySelectorAll('[data-cc]').forEach(b=>b.onclick=()=>{S.form.cls.color=b.dataset.cc;render()});
+const sc=$('saveCls');if(sc)sc.onclick=()=>{if(!S.form.cls.name.trim())return;if(S.edit){const c=S.data.classes.find(x=>x.id===S.edit.id);if(c){c.name=S.form.cls.name.trim();c.color=S.form.cls.color}}else{const nc={id:Date.now().toString(),name:S.form.cls.name.trim(),color:S.form.cls.color,students:[],activities:[]};S.data.classes.push(nc);S.data.activeClassId=nc.id}S.form.cls={name:'',color:'bgb-c'};S.modal=null;S.edit=null;inc();render()};
+const cc=$('canCls');if(cc)cc.onclick=()=>{S.modal=null;S.edit=null;render()};
+const sf=$('stuForm');if(sf)sf.onsubmit=e=>{e.preventDefault();if(!S.form.stu.trim())return;const cls=gCls(),ac={},ah={};cls.activities.forEach(a=>{ac[a.id]=0;ah[a.id]=[]});cls.students.push({id:Date.now()+Math.random(),name:S.form.stu.trim(),activityCounts:ac,activityHistory:ah});S.form.stu='';S.modal=null;inc();render()};
+const sn=$('stuName');if(sn)sn.oninput=e=>S.form.stu=e.target.value;
+const cs=$('canStu');if(cs)cs.onclick=()=>{S.modal=null;render()};
+const it=$('impTxt');if(it)it.oninput=e=>S.form.imp=e.target.value;
+const di=$('doImp');if(di)di.onclick=()=>{const ns=S.form.imp.split(/[\n,]+/).map(n=>n.trim()).filter(n=>n),cls=gCls();ns.forEach(n=>{const ac={},ah={};cls.activities.forEach(a=>{ac[a.id]=0;ah[a.id]=[]});cls.students.push({id:Date.now()+Math.random(),name:n,activityCounts:ac,activityHistory:ah})});S.form.imp='';S.modal=null;inc();render()};
+const ci=$('canImp');if(ci)ci.onclick=()=>{S.modal=null;render()};
+const an=$('actName');if(an)an.oninput=e=>S.form.act.name=e.target.value;
+const ap=$('actPts');if(ap)ap.oninput=e=>S.form.act.pts=e.target.value;
+document.querySelectorAll('[data-ai]').forEach(b=>b.onclick=()=>{S.form.act.icon=b.dataset.ai;render()});
+document.querySelectorAll('[data-ac]').forEach(b=>b.onclick=()=>{S.form.act.color=b.dataset.ac;render()});
+const sa=$('saveAct');if(sa)sa.onclick=()=>{if(!S.form.act.name.trim()||S.form.act.pts<=0)return;const cls=gCls();if(S.edit){const a=cls.activities.find(x=>x.id===S.edit.id);if(a){a.name=S.form.act.name;a.icon=S.form.act.icon;a.color=S.form.act.color;a.pointValue=parseInt(S.form.act.pts)||10}}else{const na={id:Date.now().toString(),name:S.form.act.name,icon:S.form.act.icon,color:S.form.act.color,pointValue:parseInt(S.form.act.pts)||10};cls.activities.push(na);cls.students.forEach(s=>{s.activityCounts[na.id]=0;s.activityHistory[na.id]=[]})}S.form.act={name:'',icon:'Star',color:'bgb-c',pts:10};S.modal=null;S.edit=null;inc();render()};
+const ca=$('canAct');if(ca)ca.onclick=()=>{S.modal=null;S.edit=null;render()};
+const eb=$('expBtn');if(eb)eb.onclick=()=>{const d={version:'2.0',exportDate:new Date().toISOString(),teacher:S.user.name||S.user.username,data:S.data},b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='课堂英雄-'+Date.now()+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);S.data.lastBackup=S.data.changes;save();alert(T.dataExported)};
+const ib=$('impFile');if(ib)ib.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.data?.classes){S.data=d.data;save();alert(T.dataImported);render()}else alert(T.invalidFile)}catch{alert(T.invalidFile)}};r.readAsText(f)};
+document.querySelectorAll('[data-ss]').forEach(b=>b.onclick=()=>{S.selStu=parseFloat(b.dataset.ss);render()});
+const bp=$('backProg');if(bp)bp.onclick=()=>{S.selStu=null;render()};
+const ss=$('stuSel');if(ss)ss.onchange=e=>{S.selStu=parseFloat(e.target.value);render()};
+const fs=$('filterSel');if(fs)fs.onchange=e=>{S.filter=e.target.value;render()};
+const bn=$('backNow');if(bn)bn.onclick=()=>{const d={version:'2.0',exportDate:new Date().toISOString(),teacher:S.user.name||S.user.username,data:S.data},b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='课堂英雄-'+Date.now()+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);S.data.lastBackup=S.data.changes;S.modal=null;save();alert(T.dataExported);render()};
+const bl=$('backLater');if(bl)bl.onclick=()=>{S.modal=null;render()}}
