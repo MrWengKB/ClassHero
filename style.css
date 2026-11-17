@@ -60,3 +60,13 @@ body{font-family:system-ui,sans-serif;min-height:100vh;background:linear-gradien
 .cdisp{width:84%;aspect-ratio:1;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:clamp(2.4rem,11vw,3.6rem);font-weight:900;color:#1F2937;font-variant-numeric:tabular-nums}
 .cdisp.cdone{color:#E63946;font-size:clamp(1.8rem,8vw,2.6rem)}
 .cnum{width:72px;margin:0;text-align:center;font-weight:800}.cpre{background:#CCFBF1;color:#2A9D8F;border-color:#2A9D8F}.cpre.on{background:#2A9D8F;color:#fff}
+.srow{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid #F3F4F6}.srow:last-child{border-bottom:none}
+.sname{font-weight:800;min-width:72px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.schips{flex:1;display:flex;gap:6px;overflow-x:auto;padding:4px 2px;scrollbar-width:thin}
+.chip{position:relative;flex:none;display:inline-flex;align-items:center;gap:4px;color:#fff;border:none;border-radius:999px;padding:6px 12px;font-weight:700;font-size:.8rem;cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.15);user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation;transition:transform .1s}
+.chip:hover{filter:brightness(1.08)}.chip:active{transform:translateY(2px);box-shadow:none}.chip.pop{animation:rpop .3s}
+.ccnt{background:#fff;color:#1F2937;border-radius:999px;min-width:20px;padding:0 6px;font-size:.7rem;line-height:20px;text-align:center}
+.srow .scb{flex:none}.sdel{background:none;border:none;cursor:pointer;flex:none;opacity:.5}.sdel:hover{opacity:1}
+@media (max-width:600px){.srow{flex-wrap:wrap}.schips{order:3;flex-basis:100%}.sname{flex:1;max-width:none}}
+#undo{position:fixed;bottom:16px;left:50%;transform:translate(-50%,120px);background:#1F2937;color:#fff;border-radius:999px;padding:8px 8px 8px 18px;display:flex;gap:12px;align-items:center;font-size:.85rem;box-shadow:0 6px 20px rgba(0,0,0,.25);transition:transform .25s;z-index:65}
+#undo.show{transform:translate(-50%,0)}#undo button{background:#F9C74F;color:#1F2937;border:none;border-radius:999px;padding:6px 12px;font-weight:800;cursor:pointer}
