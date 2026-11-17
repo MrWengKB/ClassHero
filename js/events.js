@@ -41,4 +41,5 @@ const ss=$('stuSel');if(ss)ss.onchange=e=>{S.selStu=parseFloat(e.target.value);r
 const fs=$('filterSel');if(fs)fs.onchange=e=>{S.filter=e.target.value;render()};
 const bn=$('backNow');if(bn)bn.onclick=()=>{const d={version:'2.0',exportDate:new Date().toISOString(),teacher:S.user.name||S.user.username,data:S.data},b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='课堂英雄-'+Date.now()+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);S.data.lastBackup=S.data.changes;S.modal=null;save();alert(T.dataExported);render()};
 bindReading();
+bindWheel();
 const bl=$('backLater');if(bl)bl.onclick=()=>{S.data.lastBackup=S.data.changes;save();S.modal=null;render()}}
