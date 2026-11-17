@@ -14,7 +14,7 @@ function wheelSyncClass() {
 
 // 管理页最下方的按钮
 function renderWheelButton() {
-  return `<div class="tc" style="margin:8px 0 24px"><button class="btn wopen" id="wOpen">🎯 幸运转盘</button></div>`;
+  return `<div class="tc" style="margin:8px 0 24px"><button class="btn wopen" id="wOpen">🎯 幸运转盘</button>${renderTimerButton()}</div>`;
 }
 
 function renderWheel() {
