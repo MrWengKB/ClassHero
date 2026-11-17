@@ -4,5 +4,5 @@ cTS=s=>gActs().reduce((t,a)=>t+((s?.activityCounts?.[a.id]||0)*a.pointValue),0),
 save=()=>{if(!(S.loggedIn&&S.user))return;localStorage.setItem('ch_'+S.user.id,JSON.stringify({...S.data,lastUpdated:Date.now()}));cloudSave()},
 normData=p=>({activeClassId:p.activeClassId||null,classes:(p.classes||[]).map(c=>({...c,students:(c.students||[]).map(s=>({...s,activityCounts:s.activityCounts||{},activityHistory:s.activityHistory||{}}))})),changes:p.changes||0,lastBackup:p.lastBackup||0}),
 load=()=>{if(!localStorage.getItem('chS'))localStorage.setItem('chS',JSON.stringify({teachers:[]}));if(S.user){const d=localStorage.getItem('ch_'+S.user.id);if(d)S.data=normData(JSON.parse(d))}},
-inc=()=>{S.data.changes++;if(!(API_URL&&S.token)&&S.data.changes-S.data.lastBackup>=15){S.modal='backup';render()}save()},
+inc=()=>{S.data.changes++;if(S.data.changes-S.data.lastBackup>=30){S.modal='backup';render()}save()},
 getDate=()=>{const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
