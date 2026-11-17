@@ -8,11 +8,16 @@
  *   teachers   教师账号（密码只存加盐哈希）
  *   data       每位教师的完整数据（JSON，过长时自动拆到多列）
  *   积分总览    方便在表格里直接查看的积分明细（每次保存时自动刷新）
+ *   classes    班级和分页的对应关系（程序用）
+ *   每个班级一个分页：建班后第一次保存时自动创建，改名、删除班级时同步。
+ *   分页内容由程序生成，只供查看，手动修改会在下次保存时被覆盖。
  */
 
 const SHEET_TEACHERS = 'teachers';
 const SHEET_DATA = 'data';
 const SHEET_VIEW = '积分总览';
+const SHEET_CLASSES = 'classes';
+const RESERVED = [SHEET_TEACHERS, SHEET_DATA, SHEET_VIEW, SHEET_CLASSES];
 const CHUNK = 40000; // 单元格上限 50000 字符，留出余量
 
 function doGet() {
@@ -132,6 +137,7 @@ function save(r) {
   s.getRange(rowNum, 1, 1, row.length).setNumberFormat('@').setValues([row]);
 
   updateView(user, r.data);
+  syncClassTabs(user, r.data);
   return { ok: true, updatedAt: now };
 }
 
@@ -160,4 +166,82 @@ function updateView(user, data) {
     s.getRange(2, 1, rows.length, 4).setNumberFormat('@');
     range.setValues(rows);
   }
+}
+
+function classesSheet() {
+  return getSheet(SHEET_CLASSES, ['teacherId', 'classId', 'sheetId', 'className']);
+}
+
+function cleanName(name) {
+  const n = String(name || '').replace(/[:\\\/?*\[\]]/g, '').trim().slice(0, 80);
+  return n || '班级';
+}
+
+/** 给班级分页取一个不重名的名字：一班 → 一班（王老师） → 一班（王老师）2 … */
+function uniqueTabName(ss, name, user, self) {
+  const base = cleanName(name);
+  const free = function (n) {
+    if (RESERVED.indexOf(n) >= 0) return false;
+    const s = ss.getSheetByName(n);
+    return !s || (self && s.getSheetId() === self.getSheetId());
+  };
+  if (free(base)) return base;
+  const withName = base + '（' + user.name + '）';
+  if (free(withName)) return withName;
+  for (let i = 2; ; i++) if (free(withName + i)) return withName + i;
+}
+
+/** 每个班级对应一个分页；新建、改名、删除都跟着班级走 */
+function syncClassTabs(user, data) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const reg = classesSheet();
+  const rows = reg.getDataRange().getValues().slice(1).filter(function (r) { return r[0] !== ''; });
+  const others = rows.filter(function (r) { return String(r[0]) !== user.id; });
+  const mine = {};
+  rows.forEach(function (r) {
+    if (String(r[0]) === user.id) mine[String(r[1])] = { sheetId: Number(r[2]), name: String(r[3]) };
+  });
+  const byId = {};
+  ss.getSheets().forEach(function (s) { byId[s.getSheetId()] = s; });
+
+  const next = {};
+  (data.classes || []).forEach(function (c) {
+    const old = mine[c.id];
+    let sh = old && byId[old.sheetId];
+    if (!sh) {
+      sh = ss.insertSheet(uniqueTabName(ss, c.name, user, null));
+    } else if (old.name !== c.name) {
+      sh.setName(uniqueTabName(ss, c.name, user, sh));
+    }
+    writeClassTab(sh, c);
+    next[c.id] = { sheetId: sh.getSheetId(), name: c.name };
+  });
+
+  Object.keys(mine).forEach(function (cid) {
+    if (!next[cid] && byId[mine[cid].sheetId]) ss.deleteSheet(byId[mine[cid].sheetId]);
+  });
+
+  const all = others.map(function (r) { return r.slice(0, 4); }).concat(Object.keys(next).map(function (cid) {
+    return [user.id, cid, String(next[cid].sheetId), next[cid].name];
+  }));
+  if (reg.getLastRow() > 1) reg.getRange(2, 1, reg.getLastRow() - 1, 4).clearContent();
+  if (all.length) reg.getRange(2, 1, all.length, 4).setNumberFormat('@').setValues(all);
+}
+
+/** 分页内容：学生 | 每项活动的次数 | 总分 */
+function writeClassTab(sh, c) {
+  const acts = c.activities || [];
+  const header = ['学生'].concat(acts.map(function (a) { return a.name + '（' + a.pointValue + '分/次）'; }), ['总分']);
+  const rows = (c.students || []).map(function (st) {
+    const counts = st.activityCounts || {};
+    const n = acts.map(function (a) { return counts[a.id] || 0; });
+    const total = acts.reduce(function (t, a, i) { return t + n[i] * a.pointValue; }, 0);
+    return [st.name].concat(n, [total]);
+  });
+  sh.clearContents();
+  const all = [header].concat(rows);
+  sh.getRange(1, 1, all.length, 1).setNumberFormat('@');
+  sh.getRange(1, 1, all.length, header.length).setValues(all);
+  sh.getRange(1, 1, 1, header.length).setFontWeight('bold');
+  sh.setFrozenRows(1);
 }
