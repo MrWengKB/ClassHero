@@ -319,6 +319,10 @@ function voiceListen() {
   const rec = new VSR();
   rec.lang = vLang(); rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 5;
   let final = null, last = '', gotAudio = false, done = false;
+  // 诊断：记录浏览器触发了哪些事件和时间，出错时显示在提示后面
+  const t0 = Date.now(), trail = [];
+  const log = ev => trail.push(ev + '@' + ((Date.now() - t0) / 1000).toFixed(1));
+  const diag = () => `（${vUA()} · ${trail.join(' → ') || '—'}）`;
   const arm = (ms, fn) => { clearTimeout(V.wd); V.wd = setTimeout(fn, ms); };
   const finish = () => {
     if (done || V.rec !== rec) return; done = true;
@@ -326,14 +330,14 @@ function voiceListen() {
     rec.onend = rec.onresult = rec.onerror = null;
     V.rec = null; V.listening = false; vPaint();
     const alts = final || (last ? [last] : null);
-    if (alts) voiceHandle(alts); else vShow(gotAudio ? T.vNotHeard : T.vNoResponse, 'err');
+    if (alts) voiceHandle(alts); else vShow((gotAudio ? T.vNotHeard : T.vNoResponse) + diag(), 'err');
   };
   rec._finish = finish;
-  rec._stopNow = () => { try { rec.stop(); } catch { } arm(2500, finish); vShow(T.vProcessing, 'busy'); };
-  rec.onstart = () => { V.listening = true; vPaint(); };
-  rec.onaudiostart = rec.onsoundstart = rec.onspeechstart = () => { if (!gotAudio) { gotAudio = true; arm(20000, rec._stopNow); } };
+  rec._stopNow = () => { log('stop'); try { rec.stop(); } catch { } arm(2500, finish); vShow(T.vProcessing, 'busy'); };
+  rec.onstart = () => { log('start'); V.listening = true; vPaint(); };
+  rec.onaudiostart = rec.onsoundstart = rec.onspeechstart = e => { log(e?.type || 'audio'); if (!gotAudio) { gotAudio = true; arm(20000, rec._stopNow); } };
   rec.onresult = e => {
-    gotAudio = true;
+    log('result'); gotAudio = true;
     const rs = Array.from(e.results);
     last = rs.map(r => r[0].transcript).join('');
     V.heard = last; vPaint();
@@ -342,17 +346,19 @@ function voiceListen() {
     clearTimeout(V.quiet); V.quiet = setTimeout(() => { if (V.rec === rec) rec._stopNow(); }, 1500);
   };
   rec.onerror = e => {
+    log('error:' + e.error);
     if (e.error === 'aborted' || e.error === 'no-speech' && last) return;
     const m = { 'not-allowed': T.vMicDenied, 'service-not-allowed': T.vSvcDenied, 'no-speech': T.vNoSpeech, 'audio-capture': T.vNoMic, network: T.vNetErr }[e.error];
     // iPhone/iPad 上只有 Safari 能用系统语音识别，其他浏览器会报 not-allowed / service-not-allowed
     const iosOther = /CriOS|FxiOS|EdgiOS|OPiOS/.test(navigator.userAgent);
-    done = true; voiceStop('⚠️ ' + (iosOther && /allowed/.test(e.error) ? T.vIOSSafari : (m || T.vSRErr(e.error))) + `（${e.error} · ${vUA()}）`);
+    done = true; voiceStop('⚠️ ' + (iosOther && /allowed/.test(e.error) ? T.vIOSSafari : (m || T.vSRErr(e.error))) + diag());
   };
-  rec.onend = finish;
+  rec.onend = () => { log('end'); finish(); };
   V.rec = rec; V.listening = true; V.heard = ''; vShow(T.vListening, 'busy');
   // 8 秒内既没声音也没文字 → 多半是语音服务连不上
-  arm(8000, () => { if (!gotAudio && V.rec === rec) voiceStop(T.vNoResponse + `（${vUA()}）`); });
-  try { rec.start(); } catch { voiceStop(T.vNoResponse); }
+  arm(8000, () => { if (!gotAudio && V.rec === rec) voiceStop(T.vNoResponse + diag()); });
+  log('call-start');
+  try { rec.start(); } catch (err) { log('throw:' + err.name); voiceStop(T.vNoResponse + diag()); }
 }
 
 // ───────────── 界面 ─────────────
