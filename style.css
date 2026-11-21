@@ -70,3 +70,16 @@ body{font-family:system-ui,sans-serif;min-height:100vh;background:linear-gradien
 @media (max-width:600px){.srow{flex-wrap:wrap}.schips{order:3;flex-basis:100%}.sname{flex:1;max-width:none}}
 #undo{position:fixed;bottom:16px;left:50%;transform:translate(-50%,120px);background:#1F2937;color:#fff;border-radius:999px;padding:8px 8px 8px 18px;display:flex;gap:12px;align-items:center;font-size:.85rem;box-shadow:0 6px 20px rgba(0,0,0,.25);transition:transform .25s;z-index:65}
 #undo.show{transform:translate(-50%,0)}#undo button{background:#F9C74F;color:#1F2937;border:none;border-radius:999px;padding:6px 12px;font-weight:800;cursor:pointer}
+#vfab{position:fixed;right:16px;bottom:16px;z-index:66;display:flex;flex-direction:column;align-items:flex-end;gap:10px;pointer-events:none}
+#vfab>*{pointer-events:auto}
+#vmic{width:60px;height:60px;border-radius:50%;border:4px solid #fff;background:linear-gradient(135deg,#E63946,#F15BB5);color:#fff;font-size:1.6rem;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.25);transition:transform .15s}
+#vmic:hover{transform:scale(1.06)}#vmic.on{animation:vpulse 1.2s infinite;background:linear-gradient(135deg,#2A9D8F,#457B9D)}
+@keyframes vpulse{0%{box-shadow:0 0 0 0 rgba(42,157,143,.6)}70%{box-shadow:0 0 0 18px rgba(42,157,143,0)}100%{box-shadow:0 0 0 0 rgba(42,157,143,0)}}
+#vpanel{display:none;width:min(340px,calc(100vw - 32px));background:#fff;border:4px solid #F15BB5;border-radius:1rem;padding:12px 14px;box-shadow:0 8px 28px rgba(0,0,0,.2);font-size:.9rem}
+#vpanel.show{display:block}
+.vic{background:none;border:none;cursor:pointer;font-size:1rem;padding:2px 4px;opacity:.7}.vic:hover{opacity:1}
+.vheard{margin-top:8px;font-weight:800;color:#1F2937;font-size:1rem}
+.vres{margin-top:6px;padding:8px 10px;border-radius:.6rem;background:#F3F4F6;color:#4B5563;font-size:.85rem;line-height:1.5}
+.vres.ok{background:#DCFCE7;color:#166534}.vres.err{background:#FEF3C7;color:#92400E}.vres.busy{background:#DBEAFE;color:#1E40AF}
+.vlb{display:block;font-weight:700;font-size:.8rem;margin-bottom:4px;color:#4B5563}
+@media (max-width:600px){#vfab{bottom:72px}}
