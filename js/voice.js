@@ -313,7 +313,13 @@ function voiceStop(msg) {
 // - Safari（iPhone/iPad/Mac）：常常一直听下去，要调用 stop() 后才交出结果，有时结果也不标 final。
 // 所以：停顿 1.5 秒自动 stop()；手动点按钮也是 stop()（不是 abort），等结果回来再处理；
 // 拿不到 final 就用最后一次的临时文字。
+// 键盘语音模式：有些手机（如 vivo）网页语音识别不可用，但键盘（Gboard 等）的语音输入能用。
+// 开启后点 🎤 只是聚焦打字框，老师用键盘上的麦克风说话；文字停 1.5 秒且规则能看懂就自动加分。
+const vKb = () => { try { return localStorage.getItem('ch_voice_kb') === '1'; } catch { return false; } };
+const vSetKb = on => { try { on ? localStorage.setItem('ch_voice_kb', '1') : localStorage.removeItem('ch_voice_kb'); } catch { } };
+
 function voiceListen() {
+  if (vKb()) { V.open = true; vPaint(); const i = $('vtxt'); if (i) { i.focus(); } return; }
   if (V.rec) { if (V.rec._finish) V.rec._stopNow(); else voiceStop(T.vStopped); return; }
   if (!VSR) { vShow(T.vNoSR, 'err'); return; }
   const rec = new VSR();
@@ -332,7 +338,10 @@ function voiceListen() {
     rec.onend = rec.onresult = rec.onerror = null;
     V.rec = null; V.listening = false; vPaint();
     const alts = final || (last ? [last] : null);
-    if (alts) voiceHandle(alts); else vShow((gotAudio ? T.vNotHeard : T.vNoResponse) + diag(), 'err');
+    if (alts) return voiceHandle(alts);
+    // 安卓上录音开始了却始终没有声音和文字：多半是手机的识别服务不支持网页，自动改用键盘语音
+    if (!gotAudio && /Android/.test(navigator.userAgent) && trail.some(x => x.startsWith('start'))) { vSetKb(true); vShow(T.vKbSwitched, 'err'); return; }
+    vShow((gotAudio ? T.vNotHeard : T.vNoResponse) + diag(), 'err');
   };
   rec._finish = finish;
   rec._stopNow = () => { log('stop'); try { rec.stop(); } catch { } arm(2500, finish); vShow(T.vProcessing, 'busy'); };
@@ -373,7 +382,7 @@ function vEnsure() {
   fab.id = 'vfab';
   fab.innerHTML = `<div id="vpanel"></div><button id="vmic" title="${esc(T.vMicTitle)}">🎤</button>`;
   document.body.appendChild(fab);
-  $('vmic').onclick = () => { V.open = true; voiceListen(); vPaint(); };
+  $('vmic').onclick = () => { V.open = true; if (vKb()) { vPaint(); $('vtxt')?.focus(); return; } voiceListen(); vPaint(); };
 }
 
 function vPaint() {
@@ -387,12 +396,19 @@ function vPaint() {
   p.innerHTML = `<div class="fx jb ac"><b>🎤 ${T.vTitle}</b><span class="fx ac"><select id="vlang" class="vlsel" title="${T.vLangTitle}">${VLANGS.map(([k, n]) => `<option value="${k}"${vLang() === k ? ' selected' : ''}>${n}</option>`).join('')}</select><button class="vic" id="vset" title="${T.vSettings}">⚙️</button><button class="vic" id="vx" title="${T.close}">✖</button></span></div>
     ${V.heard ? `<div class="vheard">「${esc(V.heard)}」</div>` : ''}
     ${V.result ? `<div class="vres ${V.kind}">${esc(V.result)}</div>` : `<div class="vres">${esc(T.vIntro(vExample(), (I18N[VL_UI[vLang()]] || T).vKw))}</div>`}
-    <form id="vform" class="fx ac" style="gap:6px;margin-top:8px"><input class="inp" id="vtxt" placeholder="${T.vTypeHere}" autocomplete="off" style="margin:0;padding:8px;font-size:.9rem"><button class="btn bp" style="margin:0;flex:none">${T.vSend}</button></form>
-    <div class="tgr" style="font-size:.7rem;margin-top:6px">${ai ? esc(T.vAIOn(VPRESETS[ai.preset]?.label || T.vOther)) : T.vAIOff}</div>`;
+    <form id="vform" class="fx ac" style="gap:6px;margin-top:8px"><input class="inp" id="vtxt" placeholder="${vKb() ? T.vKbHint : T.vTypeHere}" autocomplete="off" style="margin:0;padding:8px;font-size:.9rem"><button class="btn bp" style="margin:0;flex:none">${T.vSend}</button></form>
+    <div class="tgr" style="font-size:.7rem;margin-top:6px"><label class="vkb"><input type="checkbox" id="vkb"${vKb() ? ' checked' : ''}> ${T.vKbMode}</label>${ai ? esc(T.vAIOn(VPRESETS[ai.preset]?.label || T.vOther)) : T.vAIOff}</div>`;
   $('vlang').onchange = e => { try { localStorage.setItem(vLangKey(), e.target.value); } catch { } voiceStop(); };
   $('vx').onclick = () => { V.open = false; voiceStop(); };
   $('vset').onclick = () => { V.setOpen = true; V.testMsg = ''; vPaintSet(); };
-  $('vform').onsubmit = e => { e.preventDefault(); const t = $('vtxt').value.trim(); if (t && !V.busy) voiceHandle([t]); };
+  $('vform').onsubmit = e => { e.preventDefault(); clearTimeout(V.kbT); const t = $('vtxt').value.trim(); if (t && !V.busy) voiceHandle([t]); };
+  // 键盘语音模式：停 1.5 秒、规则能看懂就自动发送
+  $('vtxt').oninput = () => {
+    clearTimeout(V.kbT);
+    if (!vKb()) return;
+    V.kbT = setTimeout(() => { const t = $('vtxt')?.value.trim(); if (t && !V.busy && voiceParse(t, gSts(), gActs()).ok) voiceHandle([t]); }, 1500);
+  };
+  $('vkb').onchange = e => { vSetKb(e.target.checked); V.result = ''; vPaint(); if (e.target.checked) $('vtxt')?.focus(); };
 }
 
 function vPaintSet() {
