@@ -83,3 +83,10 @@ body{font-family:system-ui,sans-serif;min-height:100vh;background:linear-gradien
 .vres.ok{background:#DCFCE7;color:#166534}.vres.err{background:#FEF3C7;color:#92400E}.vres.busy{background:#DBEAFE;color:#1E40AF}
 .vlb{display:block;font-weight:700;font-size:.8rem;margin-bottom:4px;color:#4B5563}
 @media (max-width:600px){#vfab{bottom:72px}}
+.vlsel{border:2px solid #E5E7EB;border-radius:999px;padding:2px 6px;font-size:.75rem;background:#fff;margin-right:2px;max-width:120px}
+.lsw{display:inline-flex;gap:2px;background:#fff;border:2px solid #E5E7EB;border-radius:999px;padding:2px;white-space:nowrap}
+.lsw button{border:none;background:none;border-radius:999px;padding:4px 10px;font-size:.75rem;font-weight:700;color:#6B7280;cursor:pointer}
+.lsw button:hover{color:#457B9D}.lsw button.on{background:#457B9D;color:#fff}
+.lswtop{position:absolute;top:16px;left:16px;z-index:5}
+@media (max-width:600px){.lsw button{padding:3px 7px;font-size:.7rem}.lswtop{position:static;text-align:center;margin-bottom:8px}}
+@media (max-width:600px){.cnt:has(>.f1>.lsw){flex-wrap:wrap}.f1:has(>.lsw){flex-basis:100%;text-align:center;order:-1;margin-bottom:8px}}

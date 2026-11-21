@@ -2,12 +2,12 @@
 // 点一下 = 加一次分；右键或长按 = 减一次。每次加减都会同步历史记录。
 function renderStudentRows(sts, acts) {
   const pop = S.pop; S.pop = null;
-  return `<div class="crd cb"><p class="tgr mb" style="font-size:.75rem">👆 点按钮加分 · 右键或长按减一次</p>${sts.map(s => `<div class="srow">
+  return `<div class="crd cb"><p class="tgr mb" style="font-size:.75rem">${T.tapHint}</p>${sts.map(s => `<div class="srow">
     <div class="sname">${esc(s.name)}</div>
-    <div class="schips">${acts.map(a => { const c = s.activityCounts[a.id] || 0; return `<button class="chip ${a.color}${pop === s.id + '|' + a.id ? ' pop' : ''}" data-aw="${s.id}|${a.id}" title="${esc(a.name)}：点一下 +${a.pointValue}，右键或长按 −${a.pointValue}">
+    <div class="schips">${acts.map(a => { const c = s.activityCounts[a.id] || 0; return `<button class="chip ${a.color}${pop === s.id + '|' + a.id ? ' pop' : ''}" data-aw="${s.id}|${a.id}" title="${esc(T.chipTitle(a.name, a.pointValue))}">
       <span>${IC[a.icon]}</span><span class="cnm">${esc(a.name)}</span>${c ? `<b class="ccnt">${c}</b>` : ''}</button>`; }).join('')}</div>
     <span class="scb">${cTS(s)} 🏆</span>
-    <button class="sdel" data-ds="${s.id}" title="删除学生">🗑️</button></div>`).join('')}</div>`;
+    <button class="sdel" data-ds="${s.id}" title="${T.delStudent}">🗑️</button></div>`).join('')}</div>`;
 }
 
 function awardFind(key) {
@@ -39,7 +39,7 @@ function awardRemove(s, a) {
 function undoBar(text, undo) {
   let el = $('undo');
   if (!el) { el = document.createElement('div'); el.id = 'undo'; document.body.appendChild(el); }
-  el.innerHTML = `<span>${esc(text)}</span>${undo ? '<button id="undoBtn">↩ 撤销</button>' : ''}`;
+  el.innerHTML = `<span>${esc(text)}</span>${undo ? `<button id="undoBtn">↩ ${T.undo}</button>` : ''}`;
   el.className = 'show';
   const b = $('undoBtn'); if (b) b.onclick = () => { undo(); el.className = ''; };
   clearTimeout(undoBar.t); undoBar.t = setTimeout(() => { el.className = ''; }, 5000);
