@@ -291,6 +291,8 @@ function vLang() {
 }
 function voiceLangChanged() { V.rec?.abort(); V.result = ''; V.heard = ''; vPaint(); const m = $('vmic'); if (m) m.title = T.vMicTitle; }
 
+const VSR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
 function voiceListen() {
   if (V.listening) { V.rec?.stop(); return; }
   if (!VSR) { vShow(T.vNoSR, 'err'); return; }
