@@ -300,38 +300,58 @@ function vUA() {
   return os + ' ' + br;
 }
 
-// 停止录音：不等浏览器的 onend（有的浏览器语音服务卡住时 onend 永远不来），直接把界面复原
+// 停止录音并复原界面（不处理结果）
 function voiceStop(msg) {
-  clearTimeout(V.wd);
+  clearTimeout(V.wd); clearTimeout(V.quiet);
   const rec = V.rec; V.rec = null; V.listening = false;
   if (rec) { rec.onend = rec.onresult = rec.onerror = null; try { rec.abort(); } catch { } }
   if (msg) vShow(msg, 'err'); else vPaint();
 }
 
+// 不同浏览器的差别：
+// - Chrome：说完自动结束，结果标记为 final；
+// - Safari（iPhone/iPad/Mac）：常常一直听下去，要调用 stop() 后才交出结果，有时结果也不标 final。
+// 所以：停顿 1.5 秒自动 stop()；手动点按钮也是 stop()（不是 abort），等结果回来再处理；
+// 拿不到 final 就用最后一次的临时文字。
 function voiceListen() {
-  if (V.listening || V.rec) { voiceStop(T.vStopped); return; }
+  if (V.rec) { if (V.rec._finish) V.rec._stopNow(); else voiceStop(T.vStopped); return; }
   if (!VSR) { vShow(T.vNoSR, 'err'); return; }
   const rec = new VSR();
   rec.lang = vLang(); rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 5;
-  let final = null, gotAudio = false;
-  // 看门狗：8 秒内既没收到声音也没有文字 → 多半是语音服务连不上；20 秒还没结束就强制停止
-  const arm = ms => { clearTimeout(V.wd); V.wd = setTimeout(() => { if (V.rec === rec) voiceStop(gotAudio ? T.vNotHeard : T.vNoResponse); }, ms); };
-  rec.onstart = () => { V.listening = true; V.heard = ''; vShow(T.vListening, 'busy'); arm(8000); };
-  rec.onaudiostart = rec.onsoundstart = rec.onspeechstart = () => { if (!gotAudio) { gotAudio = true; arm(20000); } };
+  let final = null, last = '', gotAudio = false, done = false;
+  const arm = (ms, fn) => { clearTimeout(V.wd); V.wd = setTimeout(fn, ms); };
+  const finish = () => {
+    if (done || V.rec !== rec) return; done = true;
+    clearTimeout(V.wd); clearTimeout(V.quiet);
+    rec.onend = rec.onresult = rec.onerror = null;
+    V.rec = null; V.listening = false; vPaint();
+    const alts = final || (last ? [last] : null);
+    if (alts) voiceHandle(alts); else vShow(gotAudio ? T.vNotHeard : T.vNoResponse, 'err');
+  };
+  rec._finish = finish;
+  rec._stopNow = () => { try { rec.stop(); } catch { } arm(2500, finish); vShow(T.vProcessing, 'busy'); };
+  rec.onstart = () => { V.listening = true; vPaint(); };
+  rec.onaudiostart = rec.onsoundstart = rec.onspeechstart = () => { if (!gotAudio) { gotAudio = true; arm(20000, rec._stopNow); } };
   rec.onresult = e => {
-    gotAudio = true; arm(20000);
-    const r = e.results[e.results.length - 1];
-    V.heard = r[0].transcript; vPaint();
-    if (r.isFinal) final = Array.from(r, x => x.transcript);
+    gotAudio = true;
+    const rs = Array.from(e.results);
+    last = rs.map(r => r[0].transcript).join('');
+    V.heard = last; vPaint();
+    if (rs.length && rs.every(r => r.isFinal)) final = rs.length === 1 ? Array.from(rs[0], x => x.transcript) : [last];
+    // 停顿 1.5 秒就当说完了
+    clearTimeout(V.quiet); V.quiet = setTimeout(() => { if (V.rec === rec) rec._stopNow(); }, 1500);
   };
   rec.onerror = e => {
+    if (e.error === 'aborted' || e.error === 'no-speech' && last) return;
     const m = { 'not-allowed': T.vMicDenied, 'service-not-allowed': T.vSvcDenied, 'no-speech': T.vNoSpeech, 'audio-capture': T.vNoMic, network: T.vNetErr }[e.error];
     // iPhone/iPad 上只有 Safari 能用系统语音识别，其他浏览器会报 not-allowed / service-not-allowed
-    const iosOther = /CriOS|FxiOS|EdgiOS|OPiOS/.test(navigator.userAgent) || (/iPhone|iPad|iPod/.test(navigator.userAgent) && !/Safari/.test(navigator.userAgent));
-    if (e.error !== 'aborted') vShow('⚠️ ' + (iosOther && /allowed/.test(e.error) ? T.vIOSSafari : (m || T.vSRErr(e.error))) + `（${e.error} · ${vUA()}）`, 'err');
+    const iosOther = /CriOS|FxiOS|EdgiOS|OPiOS/.test(navigator.userAgent);
+    done = true; voiceStop('⚠️ ' + (iosOther && /allowed/.test(e.error) ? T.vIOSSafari : (m || T.vSRErr(e.error))) + `（${e.error} · ${vUA()}）`);
   };
-  rec.onend = () => { clearTimeout(V.wd); if (V.rec !== rec) return; V.listening = false; V.rec = null; vPaint(); if (final) voiceHandle(final); else if (V.kind === 'busy' && !V.busy) vShow(T.vNotHeard, 'err'); };
-  V.rec = rec; V.listening = true; vShow(T.vListening, 'busy'); arm(8000);
+  rec.onend = finish;
+  V.rec = rec; V.listening = true; V.heard = ''; vShow(T.vListening, 'busy');
+  // 8 秒内既没声音也没文字 → 多半是语音服务连不上
+  arm(8000, () => { if (!gotAudio && V.rec === rec) voiceStop(T.vNoResponse + `（${vUA()}）`); });
   try { rec.start(); } catch { voiceStop(T.vNoResponse); }
 }
 
