@@ -318,7 +318,7 @@ function voiceListen() {
     if (r.isFinal) final = Array.from(r, x => x.transcript);
   };
   rec.onerror = e => {
-    const m = { 'not-allowed': T.vMicDenied, 'service-not-allowed': T.vMicDenied, 'no-speech': T.vNoSpeech, 'audio-capture': T.vNoMic, network: T.vNetErr }[e.error];
+    const m = { 'not-allowed': T.vMicDenied, 'service-not-allowed': T.vSvcDenied, 'no-speech': T.vNoSpeech, 'audio-capture': T.vNoMic, network: T.vNetErr }[e.error];
     if (e.error !== 'aborted') vShow('⚠️ ' + (m || T.vSRErr(e.error)), 'err');
   };
   rec.onend = () => { clearTimeout(V.wd); if (V.rec !== rec) return; V.listening = false; V.rec = null; vPaint(); if (final) voiceHandle(final); else if (V.kind === 'busy' && !V.busy) vShow(T.vNotHeard, 'err'); };
