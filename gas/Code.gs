@@ -16,59 +16,66 @@
  */
 
 /* ====================================================================
- * >>> CHANGE THESE TO YOUR OWN LANGUAGE <<<
+ * >>> CHOOSE YOUR SHEET LANGUAGE <<<
  *
- * The tab names and column headers in LABELS below are in English by default.
- * Please change the text in quotes to the language you want your sheet to use.
- * The comment after each line has Chinese (华文), Malay (Melayu) and Tamil (தமிழ்)
- * suggestions you can copy.
- *
- * After changing them:
+ * Tab names and column headers in the Google Sheet use the language below.
+ *   'en' English · 'zh' 华文 · 'ms' Bahasa Melayu · 'ta' தமிழ்
+ * Change it to the language you want, then:
  *   1. Press Ctrl+S (Cmd+S on Mac) to save.
  *   2. Redeploy: Deploy → Manage deployments → Edit (pencil) → Version: New version → Deploy.
  * Tabs with the old names are renamed automatically the next time data is saved.
  * No data is lost.
+ *
+ * Want different wording, or another language? Edit the text in SHEET_LABELS below.
  * ==================================================================== */
-const LABELS = {
-  /* Points overview tab */
-  viewSheet: 'Points overview',          /* 华文 '积分总览' · Melayu 'Ringkasan mata' · தமிழ் 'புள்ளி மேலோட்டம்' */
-  viewHeader: [
-    'Teacher',                           /* 华文 '教师' · Melayu 'Guru' · தமிழ் 'ஆசிரியர்' */
-    'Class',                             /* 华文 '班级' · Melayu 'Kelas' · தமிழ் 'வகுப்பு' */
-    'Student',                           /* 华文 '学生' · Melayu 'Murid' · தமிழ் 'மாணவர்' */
-    'Activity',                          /* 华文 '活动' · Melayu 'Aktiviti' · தமிழ் 'செயல்பாடு' */
-    'Count',                             /* 华文 '次数' · Melayu 'Kiraan' · தமிழ் 'எண்ணிக்கை' */
-    'Points',                            /* 华文 '分数' · Melayu 'Mata' · தமிழ் 'புள்ளிகள்' */
-    'Student total'                      /* 华文 '学生总分' · Melayu 'Jumlah murid' · தமிழ் 'மாணவர் மொத்தம்' */
-  ],
+const SHEET_LANG = 'en';
 
-  /* Points tab of each class */
-  student: 'Student',                    /* 华文 '学生' · Melayu 'Murid' · தமிழ் 'மாணவர்' */
-  total: 'Total',                        /* 华文 '总分' · Melayu 'Jumlah' · தமிழ் 'மொத்தம்' */
-  /* Header of each activity column, e.g. "Spelling (10 pts each)" */
-  activityHeader: function (name, pts) { return name + ' (' + pts + ' pts each)'; },
-                                         /* 华文 name + '（' + pts + '分/次）' · Melayu name + ' (' + pts + ' mata)' · தமிழ் name + ' (' + pts + ' புள்ளிகள்)' */
-
-  /* Reading tab of each class */
-  readingSuffix: ' · Reading',           /* 华文 '·阅读' · Melayu ' · Bacaan' · தமிழ் ' · வாசிப்பு'  (tab name = class name + this) */
-  readingHeader: [
-    'Student',                           /* 华文 '学生' · Melayu 'Murid' · தமிழ் 'மாணவர்' */
-    'Current progress (0-9)',            /* 华文 '当前进度（0-9）' · Melayu 'Kemajuan semasa (0-9)' · தமிழ் 'தற்போதைய முன்னேற்றம் (0-9)' */
-    'Rounds completed',                  /* 华文 '完成轮数' · Melayu 'Pusingan selesai' · தமிழ் 'முடித்த சுற்றுகள்' */
-    'Books read',                        /* 华文 '总阅读量（本）' · Melayu 'Jumlah buku' · தமிழ் 'வாசித்த புத்தகங்கள்' */
-    'Last check-in'                      /* 华文 '最近打卡' · Melayu 'Rekod terakhir' · தமிழ் 'கடைசிப் பதிவு' */
-  ],
-
-  /* Tab name used when a class has no name */
-  defaultClass: 'Class'                  /* 华文 '班级' · Melayu 'Kelas' · தமிழ் 'வகுப்பு' */
+const SHEET_LABELS = {
+  en: {
+    viewSheet: 'Points overview',                       /* Points overview tab */
+    viewHeader: ['Teacher', 'Class', 'Student', 'Activity', 'Count', 'Points', 'Student total'],
+    student: 'Student', total: 'Total',                 /* Points tab of each class */
+    activityHeader: function (name, pts) { return name + ' (' + pts + ' pts each)'; },
+    readingSuffix: ' · Reading',                        /* Reading tab name = class name + this */
+    readingHeader: ['Student', 'Current progress (0-9)', 'Rounds completed', 'Books read', 'Last check-in'],
+    defaultClass: 'Class'                               /* Tab name used when a class has no name */
+  },
+  zh: {
+    viewSheet: '积分总览',
+    viewHeader: ['教师', '班级', '学生', '活动', '次数', '分数', '学生总分'],
+    student: '学生', total: '总分',
+    activityHeader: function (name, pts) { return name + '（' + pts + '分/次）'; },
+    readingSuffix: '·阅读',
+    readingHeader: ['学生', '当前进度（0-9）', '完成轮数', '总阅读量（本）', '最近打卡'],
+    defaultClass: '班级'
+  },
+  ms: {
+    viewSheet: 'Ringkasan mata',
+    viewHeader: ['Guru', 'Kelas', 'Murid', 'Aktiviti', 'Kiraan', 'Mata', 'Jumlah murid'],
+    student: 'Murid', total: 'Jumlah',
+    activityHeader: function (name, pts) { return name + ' (' + pts + ' mata setiap kali)'; },
+    readingSuffix: ' · Bacaan',
+    readingHeader: ['Murid', 'Kemajuan semasa (0-9)', 'Pusingan selesai', 'Jumlah buku', 'Rekod terakhir'],
+    defaultClass: 'Kelas'
+  },
+  ta: {
+    viewSheet: 'புள்ளி மேலோட்டம்',
+    viewHeader: ['ஆசிரியர்', 'வகுப்பு', 'மாணவர்', 'செயல்பாடு', 'எண்ணிக்கை', 'புள்ளிகள்', 'மாணவர் மொத்தம்'],
+    student: 'மாணவர்', total: 'மொத்தம்',
+    activityHeader: function (name, pts) { return name + ' (ஒவ்வொரு முறையும் ' + pts + ' புள்ளிகள்)'; },
+    readingSuffix: ' · வாசிப்பு',
+    readingHeader: ['மாணவர்', 'தற்போதைய முன்னேற்றம் (0-9)', 'முடித்த சுற்றுகள்', 'வாசித்த புத்தகங்கள்', 'கடைசிப் பதிவு'],
+    defaultClass: 'வகுப்பு'
+  }
 };
+const LABELS = SHEET_LABELS[SHEET_LANG] || SHEET_LABELS.en;
 
 /* Internal tabs used by the program. Please do not rename these. */
 const SHEET_TEACHERS = 'teachers';
 const SHEET_DATA = 'data';
 const SHEET_CLASSES = 'classes';
 const SHEET_VIEW = LABELS.viewSheet;
-const OLD_VIEW_NAMES = ['积分总览', 'Points overview']; // earlier names of the overview tab; renamed automatically
+const OLD_VIEW_NAMES = Object.keys(SHEET_LABELS).map(function (k) { return SHEET_LABELS[k].viewSheet; }); // overview tab in other languages; renamed automatically
 const RESERVED = [SHEET_TEACHERS, SHEET_DATA, SHEET_VIEW, SHEET_CLASSES];
 const CHUNK = 40000; // a cell holds up to 50000 characters; leave some margin
 
