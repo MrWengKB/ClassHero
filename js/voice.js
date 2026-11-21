@@ -317,7 +317,9 @@ function voiceListen() {
   if (V.rec) { if (V.rec._finish) V.rec._stopNow(); else voiceStop(T.vStopped); return; }
   if (!VSR) { vShow(T.vNoSR, 'err'); return; }
   const rec = new VSR();
-  rec.lang = vLang(); rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 5;
+  rec.lang = vLang(); rec.interimResults = true; rec.continuous = false;
+  // 安卓 Chrome 交给系统的 Google 语音服务，多候选在部分手机上会让识别没有结果，只要 1 个
+  rec.maxAlternatives = /Android/.test(navigator.userAgent) ? 1 : 5;
   let final = null, last = '', gotAudio = false, done = false;
   // 诊断：记录浏览器触发了哪些事件和时间，出错时显示在提示后面
   const t0 = Date.now(), trail = [];
