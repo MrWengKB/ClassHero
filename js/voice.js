@@ -23,9 +23,13 @@ function vLoadAI() {
 }
 
 // ───────────── 规则解析 ─────────────
-const CN_NUM = { 一: 1, 二: 2, 两: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9, 十: 10 };
-const vNorm = t => String(t || '').replace(/[\s，。,.!！?？、；;：:“”"'‘’（）()《》…~～-]/g, '');
+const CN_NUM = { 一: 1, 二: 2, 两: 2, 兩: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9, 十: 10 };
+// 去掉空格和标点、英文转小写：中文、英文、马来文、淡米尔文都按同一套方法比对
+const vNorm = t => String(t || '').toLowerCase().replace(/[\s，。,.!！?？、；;：:“”"'‘’（）()《》…~～\-_/]/g, '');
+const HAS_CJK = t => /[\u3400-\u9fff]/.test(t);
+const EN_NUM = { one: 1, once: 1, two: 2, twice: 2, three: 3, thrice: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, satu: 1, dua: 2, tiga: 3, empat: 4, lima: 5, enam: 6, tujuh: 7, lapan: 8, sembilan: 9, sepuluh: 10 };
 const vNum = t => {
+  if (EN_NUM[t]) return EN_NUM[t];
   if (/^\d+$/.test(t)) return parseInt(t);
   if (t === '十') return 10;
   if (t.length === 2 && t[0] === '十') return 10 + (CN_NUM[t[1]] || 0);
@@ -33,8 +37,10 @@ const vNum = t => {
   return CN_NUM[t] || 1;
 };
 const vDiff = (a, b) => { let d = 0; for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) d++; return d; };
-const MINUS_RE = /扣|减|撤销|撤回|取消|去掉|删掉|删除|拿掉|收回/;
-const ALL_RE = /全班|所有人|所有同学|全体|大家/;
+// 关键词：中文、English、Bahasa Melayu、தமிழ் 都认（文字已去空格、转小写）
+const MINUS_RE = /扣|减|減|撤销|撤銷|撤回|取消|去掉|删掉|刪掉|删除|刪除|拿掉|收回|minus|deduct|takeaway|takeoff|remove|undo|cancel|tolak|kurangkan|batal|கழி|நீக்கு/;
+const ALL_RE = /全班|所有人|所有同学|所有同學|全体|全體|大家|wholeclass|everyone|everybody|allstudents|semuamurid|semuaorang|seluruhkelas|semua|அனைவரும்|எல்லோரும்|எல்லாரும்/;
+const TIMES_RE = /(\d+|[一二两兩三四五六七八九十]+|one|two|three|four|five|six|seven|eight|nine|ten|satu|dua|tiga|empat|lima|enam|tujuh|lapan|sembilan|sepuluh)(次|个|個|下|回|遍|times?|kali|முறை)|(once|twice|thrice)/;
 
 // 在 text 中查找 needle，跳过已被别的词占用的位置
 function vFind(text, used, needle) {
@@ -79,30 +85,38 @@ function voiceParse(raw, sts, acts) {
   { const m = text.match(ALL_RE); if (m) { const p = text.indexOf(m[0]); if (!used[p]) addTok('all', null, p, m[0].length); } }
   // ③ 活动全名
   actList.forEach(a => vFind(text, used, vNorm(a.name)).forEach(p => addTok('a', a, p, vNorm(a.name).length)));
-  // ④ 只叫名字不带姓（「小明听写满分」），要求在本班唯一
+  // ④ 只叫名字：中文去掉姓（「小明听写满分」）；英文等只叫名字里的某一个词（「Tom」→ Tom Lee）。要求在本班唯一
   stuList.forEach(s => {
-    const n = vNorm(s.name); if (n.length < 3) return;
-    const given = n.slice(1);
-    if (stuList.filter(x => vNorm(x.name).includes(given)).length !== 1) return;
-    vFind(text, used, given).forEach(p => addTok('s', s, p, given.length));
+    const n = vNorm(s.name), parts = [];
+    if (HAS_CJK(s.name)) { if (n.length >= 3) parts.push(n.slice(1)); }
+    else s.name.toLowerCase().split(/[\s\-_/]+/).map(vNorm).filter(w => w.length >= 3 && w !== n).forEach(w => parts.push(w));
+    parts.forEach(given => {
+      if (stuList.filter(x => vNorm(x.name).includes(given)).length !== 1) return;
+      vFind(text, used, given).forEach(p => addTok('s', s, p, given.length));
+    });
   });
-  // ⑤ 活动名的一部分（「交功课」→「按时交功课」），要求只属于一个活动
+  // ⑤ 活动名的一部分（「交功课」→「按时交功课」，「homework」→ Homework on time），要求只属于一个活动
+  //    中文按字取片段（至少 2 个字）；英文等按词取片段（至少 4 个字母）
+  const VSTOP = ['time', 'times', 'kali', 'class', 'full', 'good', 'with', 'from', 'well', 'done'];
+  const pieces = name => {
+    const out = [];
+    if (HAS_CJK(name)) { const n = vNorm(name); for (let L = n.length - 1; L >= 2; L--) for (let i = 0; i + L <= n.length; i++) out.push(n.substr(i, L)); }
+    else { const w = name.toLowerCase().split(/[\s\-_/]+/).map(vNorm).filter(Boolean); for (let L = w.length - 1; L >= 1; L--) for (let i = 0; i + L <= w.length; i++) { const p = w.slice(i, i + L).join(''); if (p.length >= 4 && !VSTOP.includes(p)) out.push(p); } }
+    return out;
+  };
   actList.forEach(a => {
-    const n = vNorm(a.name);
     if (toks.some(t => t.obj === a)) return;
-    for (let L = n.length - 1; L >= 2; L--) {
-      for (let i = 0; i + L <= n.length; i++) {
-        const sub = n.substr(i, L);
-        if (actList.filter(x => vNorm(x.name).includes(sub)).length !== 1) continue;
-        const ps = vFind(text, used, sub);
-        if (ps.length) { ps.forEach(p => addTok('a', a, p, L)); return; }
-      }
+    for (const sub of pieces(a.name)) {
+      if (actList.filter(x => vNorm(x.name).includes(sub)).length !== 1) continue;
+      const ps = vFind(text, used, sub);
+      if (ps.length) { ps.forEach(p => addTok('a', a, p, sub.length)); return; }
     }
   });
   // ⑥ 近似名字、近似活动（只差一个字），只在还缺的时候用
   const hasS = () => toks.some(t => t.type === 's' || t.type === 'all'), hasA = () => toks.some(t => t.type === 'a');
-  if (!hasS()) stuList.forEach(s => { const n = vNorm(s.name); if (n.length >= 3) vFuzzy(text, used, n).forEach(p => { addTok('s', s, p, n.length); fuzzy = true; }); });
-  if (!hasA()) actList.forEach(a => { const n = vNorm(a.name); if (n.length >= 3) vFuzzy(text, used, n).forEach(p => { addTok('a', a, p, n.length); fuzzy = true; }); });
+  const fzMin = x => HAS_CJK(x) ? 3 : 5; // 英文名太短时不做近似，免得误认
+  if (!hasS()) stuList.forEach(s => { const n = vNorm(s.name); if (n.length >= fzMin(s.name)) vFuzzy(text, used, n).forEach(p => { addTok('s', s, p, n.length); fuzzy = true; }); });
+  if (!hasA()) actList.forEach(a => { const n = vNorm(a.name); if (n.length >= fzMin(a.name)) vFuzzy(text, used, n).forEach(p => { addTok('a', a, p, n.length); fuzzy = true; }); });
 
   if (!hasS()) return { ok: false, why: '没找到学生姓名' };
   if (!hasA()) return { ok: false, why: '没找到活动名称' };
@@ -134,8 +148,8 @@ function voiceParse(raw, sts, acts) {
     const from = i === 0 ? 0 : g.start, to = i + 1 < groups.length ? groups[i + 1].start : text.length;
     const span = masked.slice(from, to);
     const minus = MINUS_RE.test(span);
-    const m = span.match(/(\d+|[一二两三四五六七八九十]+)(次|个|下|回|遍)/);
-    const times = Math.min(10, Math.max(1, m ? vNum(m[1]) : 1));
+    const m = span.match(TIMES_RE);
+    const times = Math.min(10, Math.max(1, m ? vNum(m[1] || m[3]) : 1));
     [...new Set(g.stus)].forEach(s => g.acts.forEach(a => ops.push({ s, a, times, minus })));
   });
   return { ok: true, ops, fuzzy };
@@ -163,9 +177,14 @@ function voiceApply(ops, prefix) {
   vShow((prefix || '✅ ') + line, 'ok');
 }
 
+function vExample() {
+  const n = gSts()[0]?.name || '王小明', a = gActs()[0]?.name || '听写满分';
+  return HAS_CJK(n + a) ? n + a : n + ' ' + a;
+}
+const VKW = { zh: '「扣」「两次」「全班」', en: '"minus" "twice" "whole class"', ms: '"tolak" "dua kali" "semua"', ta: '"கழி" "2 முறை" "அனைவரும்"' };
 function vHelp() {
   const sts = gSts(), acts = gActs();
-  const ex = `${sts[0]?.name || '王小明'}${acts[0]?.name || '听写满分'}`;
+  const ex = vExample();
   return `请按「学生姓名 + 活动名称」来说，例如「${ex}」。` + (acts.length ? `本班活动：${acts.map(a => a.name).join('、')}。` : '');
 }
 
@@ -202,7 +221,7 @@ async function voiceHandle(alts) {
 }
 
 // ───────────── AI 兜底 ─────────────
-const VSYS = `你是小学课堂积分助手。老师会口头说一句加分或扣分指令（来自语音识别，可能有同音错别字）。
+const VSYS = `你是小学课堂积分助手。老师会口头说一句加分或扣分指令（来自语音识别，可能有同音错别字）。老师可能用中文、English、Bahasa Melayu、தமிழ் 或其他语言，也可能几种语言混着说。
 请根据给出的学生名单和活动列表，判断老师想给哪些学生的哪个活动加（或扣）几次。
 规则：
 - student 必须原样使用名单里的姓名；如果是全班，写 "全班"。
@@ -250,13 +269,22 @@ async function voiceAI(cfg, said, sts, acts) {
 }
 
 // ───────────── 语音识别 ─────────────
+// 识别语言：每个班单独记住（中文课、英文课、马来文课、淡米尔文课可以各用各的）。
+// 没选过时按本班活动名猜：有汉字就用普通话，否则用英语。
+const VLANGS = [['zh-CN', '普通话'], ['zh-TW', '國語（台灣）'], ['zh-HK', '粵語'], ['en-US', 'English'], ['en-GB', 'English (UK)'], ['ms-MY', 'Bahasa Melayu'], ['ta-SG', 'தமிழ்']];
+const vLangKey = () => 'ch_voice_lang_' + (gCls()?.id || '');
+function vLang() {
+  try { const v = localStorage.getItem(vLangKey()); if (v && VLANGS.some(l => l[0] === v)) return v; } catch { }
+  const names = gActs().map(a => a.name).join('') || gSts().map(x => x.name).join('');
+  return !names || HAS_CJK(names) ? 'zh-CN' : 'en-US';
+}
 const VSR = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 function voiceListen() {
   if (V.listening) { V.rec?.stop(); return; }
   if (!VSR) { vShow('⚠️ 这个浏览器不支持语音识别，请用电脑版 Chrome 或 Edge。也可以在下面直接打字。', 'err'); return; }
   const rec = new VSR();
-  rec.lang = 'zh-CN'; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 5;
+  rec.lang = vLang(); rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 5;
   let final = null;
   rec.onstart = () => { V.listening = true; V.heard = ''; vShow('👂 正在听…请说「姓名 + 活动」', 'busy'); };
   rec.onresult = e => {
@@ -293,11 +321,12 @@ function vPaint() {
   if (!V.open) { p.className = ''; p.innerHTML = ''; return; }
   const ai = vGetAI();
   p.className = 'show';
-  p.innerHTML = `<div class="fx jb ac"><b>🎤 语音加分</b><span><button class="vic" id="vset" title="AI 设置">⚙️</button><button class="vic" id="vx" title="关闭">✖</button></span></div>
+  p.innerHTML = `<div class="fx jb ac"><b>🎤 语音加分</b><span class="fx ac"><select id="vlang" class="vlsel" title="识别语言（每个班分别记住）">${VLANGS.map(([k, n]) => `<option value="${k}"${vLang() === k ? ' selected' : ''}>${n}</option>`).join('')}</select><button class="vic" id="vset" title="AI 设置">⚙️</button><button class="vic" id="vx" title="关闭">✖</button></span></div>
     ${V.heard ? `<div class="vheard">「${esc(V.heard)}」</div>` : ''}
-    ${V.result ? `<div class="vres ${V.kind}">${esc(V.result)}</div>` : `<div class="vres">点 🎤 后说「姓名 + 活动」，例如「${esc(gSts()[0]?.name || '王小明')}${esc(gActs()[0]?.name || '听写满分')}」。可以一次说几个人，也可以说「扣」「两次」「全班」。</div>`}
+    ${V.result ? `<div class="vres ${V.kind}">${esc(V.result)}</div>` : `<div class="vres">点 🎤 后说「姓名 + 活动」，例如「${esc(vExample())}」。可以一次说几个人，也可以说 ${esc(VKW[vLang().slice(0, 2)] || VKW.zh)}。</div>`}
     <form id="vform" class="fx ac" style="gap:6px;margin-top:8px"><input class="inp" id="vtxt" placeholder="也可以在这里打字" autocomplete="off" style="margin:0;padding:8px;font-size:.9rem"><button class="btn bp" style="margin:0;flex:none">发送</button></form>
     <div class="tgr" style="font-size:.7rem;margin-top:6px">${ai ? `🤖 规则看不懂时会请 AI 理解（${esc(VPRESETS[ai.preset]?.label || ai.model)}）` : '只按规则理解。点 ⚙️ 可以接入自己的 AI，说法更自由。'}</div>`;
+  $('vlang').onchange = e => { try { localStorage.setItem(vLangKey(), e.target.value); } catch { } V.rec?.abort(); };
   $('vx').onclick = () => { V.open = false; V.rec?.abort(); vPaint(); };
   $('vset').onclick = () => { V.setOpen = true; V.testMsg = ''; vPaintSet(); };
   $('vform').onsubmit = e => { e.preventDefault(); const t = $('vtxt').value.trim(); if (t && !V.busy) voiceHandle([t]); };
@@ -342,5 +371,6 @@ function vPaintSet() {
 function voiceSync() {
   const on = S.loggedIn && gCls();
   if (!on) { V.rec?.abort(); $('vfab')?.remove(); V.open = false; V.setOpen = false; vPaintSet(); return; }
-  const fresh = !$('vfab'); vEnsure(); if (fresh) vPaint();
+  // 第一次出现或换了班级时才重画面板（不打断正在打字的输入框）
+  const fresh = !$('vfab') || V.cls !== gCls().id; V.cls = gCls().id; vEnsure(); if (fresh) vPaint();
 }
