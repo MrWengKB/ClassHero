@@ -336,7 +336,7 @@ function voiceListen() {
   };
   rec._finish = finish;
   rec._stopNow = () => { log('stop'); try { rec.stop(); } catch { } arm(2500, finish); vShow(T.vProcessing, 'busy'); };
-  rec.onstart = () => { log('start'); V.listening = true; vPaint(); };
+  rec.onstart = () => { log('start'); V.listening = true; vPaint(); if (!gotAudio) arm(15000, rec._stopNow); };
   rec.onaudiostart = rec.onsoundstart = rec.onspeechstart = e => { log(e?.type || 'audio'); if (!gotAudio) { gotAudio = true; arm(20000, rec._stopNow); } };
   rec.onresult = e => {
     log('result'); gotAudio = true;
@@ -358,7 +358,8 @@ function voiceListen() {
   rec.onend = () => { log('end'); finish(); };
   V.rec = rec; V.listening = true; V.heard = ''; vShow(T.vListening, 'busy');
   // 8 秒内既没声音也没文字 → 多半是语音服务连不上
-  arm(8000, () => { if (!gotAudio && V.rec === rec) voiceStop(T.vNoResponse + diag()); });
+  // 已经 start 的不在这里停（安卓有时不发「收到声音」事件，但照样能识别）
+  arm(8000, () => { if (!gotAudio && V.rec === rec && !trail.some(x => x.startsWith('start'))) voiceStop(T.vNoResponse + diag()); });
   log('call-start');
   try { rec.start(); } catch (err) { log('throw:' + err.name); voiceStop(T.vNoResponse + diag()); }
 }
