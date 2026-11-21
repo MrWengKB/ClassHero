@@ -289,18 +289,30 @@ function vLang() {
   try { const v = localStorage.getItem(vLangKey()); if (v && VL_UI[v]) return v; } catch { }
   return VL_DEFAULT[LANG] || 'zh-CN';
 }
-function voiceLangChanged() { V.rec?.abort(); V.result = ''; V.heard = ''; vPaint(); const m = $('vmic'); if (m) m.title = T.vMicTitle; }
+function voiceLangChanged() { voiceStop(); V.result = ''; V.heard = ''; vPaint(); const m = $('vmic'); if (m) m.title = T.vMicTitle; }
 
 const VSR = window.SpeechRecognition || window.webkitSpeechRecognition;
 
+// 停止录音：不等浏览器的 onend（有的浏览器语音服务卡住时 onend 永远不来），直接把界面复原
+function voiceStop(msg) {
+  clearTimeout(V.wd);
+  const rec = V.rec; V.rec = null; V.listening = false;
+  if (rec) { rec.onend = rec.onresult = rec.onerror = null; try { rec.abort(); } catch { } }
+  if (msg) vShow(msg, 'err'); else vPaint();
+}
+
 function voiceListen() {
-  if (V.listening) { V.rec?.stop(); return; }
+  if (V.listening || V.rec) { voiceStop(T.vStopped); return; }
   if (!VSR) { vShow(T.vNoSR, 'err'); return; }
   const rec = new VSR();
   rec.lang = vLang(); rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 5;
-  let final = null;
-  rec.onstart = () => { V.listening = true; V.heard = ''; vShow(T.vListening, 'busy'); };
+  let final = null, gotAudio = false;
+  // 看门狗：8 秒内既没收到声音也没有文字 → 多半是语音服务连不上；20 秒还没结束就强制停止
+  const arm = ms => { clearTimeout(V.wd); V.wd = setTimeout(() => { if (V.rec === rec) voiceStop(gotAudio ? T.vNotHeard : T.vNoResponse); }, ms); };
+  rec.onstart = () => { V.listening = true; V.heard = ''; vShow(T.vListening, 'busy'); arm(8000); };
+  rec.onaudiostart = rec.onsoundstart = rec.onspeechstart = () => { if (!gotAudio) { gotAudio = true; arm(20000); } };
   rec.onresult = e => {
+    gotAudio = true; arm(20000);
     const r = e.results[e.results.length - 1];
     V.heard = r[0].transcript; vPaint();
     if (r.isFinal) final = Array.from(r, x => x.transcript);
@@ -309,9 +321,9 @@ function voiceListen() {
     const m = { 'not-allowed': T.vMicDenied, 'service-not-allowed': T.vMicDenied, 'no-speech': T.vNoSpeech, 'audio-capture': T.vNoMic, network: T.vNetErr }[e.error];
     if (e.error !== 'aborted') vShow('⚠️ ' + (m || T.vSRErr(e.error)), 'err');
   };
-  rec.onend = () => { V.listening = false; V.rec = null; vPaint(); if (final) voiceHandle(final); else if (V.kind === 'busy' && !V.busy) vShow(T.vNotHeard, 'err'); };
-  V.rec = rec;
-  try { rec.start(); } catch { /* 已在识别中 */ }
+  rec.onend = () => { clearTimeout(V.wd); if (V.rec !== rec) return; V.listening = false; V.rec = null; vPaint(); if (final) voiceHandle(final); else if (V.kind === 'busy' && !V.busy) vShow(T.vNotHeard, 'err'); };
+  V.rec = rec; V.listening = true; vShow(T.vListening, 'busy'); arm(8000);
+  try { rec.start(); } catch { voiceStop(T.vNoResponse); }
 }
 
 // ───────────── 界面 ─────────────
@@ -339,8 +351,8 @@ function vPaint() {
     ${V.result ? `<div class="vres ${V.kind}">${esc(V.result)}</div>` : `<div class="vres">${esc(T.vIntro(vExample(), (I18N[VL_UI[vLang()]] || T).vKw))}</div>`}
     <form id="vform" class="fx ac" style="gap:6px;margin-top:8px"><input class="inp" id="vtxt" placeholder="${T.vTypeHere}" autocomplete="off" style="margin:0;padding:8px;font-size:.9rem"><button class="btn bp" style="margin:0;flex:none">${T.vSend}</button></form>
     <div class="tgr" style="font-size:.7rem;margin-top:6px">${ai ? esc(T.vAIOn(VPRESETS[ai.preset]?.label || T.vOther)) : T.vAIOff}</div>`;
-  $('vlang').onchange = e => { try { localStorage.setItem(vLangKey(), e.target.value); } catch { } V.rec?.abort(); };
-  $('vx').onclick = () => { V.open = false; V.rec?.abort(); vPaint(); };
+  $('vlang').onchange = e => { try { localStorage.setItem(vLangKey(), e.target.value); } catch { } voiceStop(); };
+  $('vx').onclick = () => { V.open = false; voiceStop(); };
   $('vset').onclick = () => { V.setOpen = true; V.testMsg = ''; vPaintSet(); };
   $('vform').onsubmit = e => { e.preventDefault(); const t = $('vtxt').value.trim(); if (t && !V.busy) voiceHandle([t]); };
 }
@@ -383,7 +395,7 @@ function vPaintSet() {
 // 每次重绘后调用：登录且有班级时才显示麦克风按钮
 function voiceSync() {
   const on = S.loggedIn && gCls();
-  if (!on) { V.rec?.abort(); $('vfab')?.remove(); V.open = false; V.setOpen = false; vPaintSet(); return; }
+  if (!on) { voiceStop(); $('vfab')?.remove(); V.open = false; V.setOpen = false; vPaintSet(); return; }
   // 第一次出现或换了班级时才重画面板（不打断正在打字的输入框）
   const fresh = !$('vfab') || V.cls !== gCls().id; V.cls = gCls().id; vEnsure(); if (fresh) vPaint();
 }

@@ -49,7 +49,7 @@ zh: {
   vPrivacy: "🔒 密钥只保存在这台电脑的浏览器里，不会上传到课堂英雄或 Google 表格，换电脑需要重新填写。使用 AI 时，你说的那句话、本班学生姓名和活动名称会发送给所选的服务商。",
   vTest: "测试连接", vClear: "清除", vSaved: "✅ 已保存 AI 设置", vSavedNoKey: "已保存（未填密钥，只按规则理解）", vCleared: "已清除，只按规则理解",
   vFillAll: "⚠️ 请填写接口地址、模型名称和密钥", vTesting: "⏳ 正在测试…", vTestOk: n => `✅ 连接成功，AI 返回了 ${n} 条操作（测试不会加分）`,
-  vOther: "其他（OpenAI 兼容接口）", vNoteLang: "中文"
+  vOther: "其他（OpenAI 兼容接口）", vStopped: "已停止。再点 🎤 重新开始。", vNoResponse: "⚠️ 语音识别没有回应。请用电脑版 Chrome 或 Edge 打开本网站（应用里的内置浏览器、Brave、Firefox 都不行），并确认麦克风可用。也可以在下面打字。", vNoteLang: "中文"
 },
 
 en: {
@@ -90,7 +90,7 @@ en: {
   vPrivacy: "🔒 The key stays in this browser only. It is not uploaded to Class Heroes or Google Sheets, so you need to enter it again on another computer. When the AI is used, what you said plus this class's student and activity names are sent to the chosen provider.",
   vTest: "Test", vClear: "Clear", vSaved: "✅ AI settings saved", vSavedNoKey: "Saved (no key, rules only)", vCleared: "Cleared, rules only",
   vFillAll: "⚠️ Please fill in the address, model and key", vTesting: "⏳ Testing…", vTestOk: n => `✅ Connected. The AI returned ${n} action(s) (the test adds no points).`,
-  vOther: "Other (OpenAI-compatible)", vNoteLang: "English"
+  vOther: "Other (OpenAI-compatible)", vStopped: "Stopped. Tap 🎤 to start again.", vNoResponse: "⚠️ Speech recognition is not responding. Please open this site in Chrome or Edge on a computer (built-in app browsers, Brave and Firefox do not work) and check your microphone. You can also type below.", vNoteLang: "English"
 },
 
 ms: {
@@ -131,7 +131,7 @@ ms: {
   vPrivacy: "🔒 Kunci hanya disimpan dalam pelayar ini. Ia tidak dimuat naik ke Wira Kelas atau Google Sheets, jadi perlu diisi semula di komputer lain. Apabila AI digunakan, ayat yang anda sebut serta nama murid dan aktiviti kelas ini dihantar kepada penyedia yang dipilih.",
   vTest: "Uji", vClear: "Kosongkan", vSaved: "✅ Tetapan AI disimpan", vSavedNoKey: "Disimpan (tiada kunci, peraturan sahaja)", vCleared: "Dikosongkan, peraturan sahaja",
   vFillAll: "⚠️ Sila isi alamat, model dan kunci", vTesting: "⏳ Sedang menguji…", vTestOk: n => `✅ Berjaya disambungkan. AI memulangkan ${n} tindakan (ujian tidak menambah mata).`,
-  vOther: "Lain-lain (serasi OpenAI)", vNoteLang: "Bahasa Melayu"
+  vOther: "Lain-lain (serasi OpenAI)", vStopped: "Dihentikan. Tekan 🎤 untuk mula semula.", vNoResponse: "⚠️ Pengecaman suara tidak bertindak balas. Sila buka laman ini dengan Chrome atau Edge pada komputer (pelayar terbina dalam aplikasi, Brave dan Firefox tidak boleh) dan semak mikrofon. Anda juga boleh menaip di bawah.", vNoteLang: "Bahasa Melayu"
 },
 
 ta: {
@@ -172,7 +172,7 @@ ta: {
   vPrivacy: "🔒 சாவி இந்த உலாவியில் மட்டுமே சேமிக்கப்படும். அது வகுப்பறை நாயகர்கள் அல்லது Google Sheets-க்குப் பதிவேற்றப்படாது, எனவே வேறு கணினியில் மீண்டும் நிரப்ப வேண்டும். AI பயன்படுத்தும்போது, நீங்கள் சொன்னதும் இந்த வகுப்பின் மாணவர், செயல்பாட்டுப் பெயர்களும் தேர்ந்தெடுத்த வழங்குநருக்கு அனுப்பப்படும்.",
   vTest: "சோதி", vClear: "அழி", vSaved: "✅ AI அமைப்புகள் சேமிக்கப்பட்டன", vSavedNoKey: "சேமிக்கப்பட்டது (சாவி இல்லை, விதிகள் மட்டும்)", vCleared: "அழிக்கப்பட்டது, விதிகள் மட்டும்",
   vFillAll: "⚠️ முகவரி, மாதிரி, சாவி மூன்றையும் நிரப்புங்கள்", vTesting: "⏳ சோதிக்கிறது…", vTestOk: n => `✅ இணைக்கப்பட்டது. AI ${n} செயல்களைத் தந்தது (சோதனையில் புள்ளிகள் சேர்க்கப்படாது).`,
-  vOther: "பிற (OpenAI இணக்கமானது)", vNoteLang: "தமிழ்"
+  vOther: "பிற (OpenAI இணக்கமானது)", vStopped: "நிறுத்தப்பட்டது. மீண்டும் தொடங்க 🎤 அழுத்துங்கள்.", vNoResponse: "⚠️ பேச்சு அறிதல் பதிலளிக்கவில்லை. கணினியில் Chrome அல்லது Edge-இல் இந்தத் தளத்தைத் திறங்கள் (செயலிகளுக்குள் உள்ள உலாவி, Brave, Firefox வேலை செய்யாது), ஒலிவாங்கியையும் சரிபாருங்கள். கீழே தட்டச்சும் செய்யலாம்.", vNoteLang: "தமிழ்"
 }
 };
 
