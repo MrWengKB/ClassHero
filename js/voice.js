@@ -292,6 +292,13 @@ function vLang() {
 function voiceLangChanged() { voiceStop(); V.result = ''; V.heard = ''; vPaint(); const m = $('vmic'); if (m) m.title = T.vMicTitle; }
 
 const VSR = window.SpeechRecognition || window.webkitSpeechRecognition;
+// 出错时附上简短的浏览器信息，方便排查
+function vUA() {
+  const u = navigator.userAgent;
+  const os = /iPhone|iPad|iPod/.test(u) || (/Macintosh/.test(u) && navigator.maxTouchPoints > 1) ? 'iOS' : /Android/.test(u) ? 'Android' : /Mac/.test(u) ? 'Mac' : /Windows/.test(u) ? 'Windows' : 'Other';
+  const br = /EdgiOS|Edg\//.test(u) ? 'Edge' : /CriOS|Chrome\//.test(u) ? 'Chrome' : /FxiOS|Firefox/.test(u) ? 'Firefox' : /Safari/.test(u) ? 'Safari' : 'WebView';
+  return os + ' ' + br;
+}
 
 // 停止录音：不等浏览器的 onend（有的浏览器语音服务卡住时 onend 永远不来），直接把界面复原
 function voiceStop(msg) {
@@ -319,7 +326,9 @@ function voiceListen() {
   };
   rec.onerror = e => {
     const m = { 'not-allowed': T.vMicDenied, 'service-not-allowed': T.vSvcDenied, 'no-speech': T.vNoSpeech, 'audio-capture': T.vNoMic, network: T.vNetErr }[e.error];
-    if (e.error !== 'aborted') vShow('⚠️ ' + (m || T.vSRErr(e.error)), 'err');
+    // iPhone/iPad 上只有 Safari 能用系统语音识别，其他浏览器会报 not-allowed / service-not-allowed
+    const iosOther = /CriOS|FxiOS|EdgiOS|OPiOS/.test(navigator.userAgent) || (/iPhone|iPad|iPod/.test(navigator.userAgent) && !/Safari/.test(navigator.userAgent));
+    if (e.error !== 'aborted') vShow('⚠️ ' + (iosOther && /allowed/.test(e.error) ? T.vIOSSafari : (m || T.vSRErr(e.error))) + `（${e.error} · ${vUA()}）`, 'err');
   };
   rec.onend = () => { clearTimeout(V.wd); if (V.rec !== rec) return; V.listening = false; V.rec = null; vPaint(); if (final) voiceHandle(final); else if (V.kind === 'busy' && !V.busy) vShow(T.vNotHeard, 'err'); };
   V.rec = rec; V.listening = true; vShow(T.vListening, 'busy'); arm(8000);
