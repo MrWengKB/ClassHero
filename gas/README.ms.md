@@ -18,8 +18,9 @@ Setiap kali anda mengubah `Code.gs`, gunakan semula melalui **Gunakan → Urus p
 Helaian (tab) berikut dicipta secara automatik. Namanya dalam bahasa Cina kerana skrip menciptanya begitu:
 - `teachers`: akaun (kata laluan hanya disimpan sebagai cincang bergaram, bukan teks biasa)
 - `data`: data penuh setiap guru (digunakan oleh program, jangan sunting secara manual)
-- `积分总览` (ringkasan mata): kiraan dan mata setiap murid bagi setiap aktiviti. Boleh dilihat, ditapis dan dibuat carta terus.
+- `Points overview` (ringkasan mata): kiraan dan mata setiap murid bagi setiap aktiviti. Boleh dilihat, ditapis dan dibuat carta terus.
 - `classes`: padanan antara kelas dan tab (digunakan oleh program)
-- **Dua tab bagi setiap kelas**: contohnya "4A" untuk mata (murid, kiraan setiap aktiviti, jumlah), dan "4A·阅读" untuk rekod bacaan (kemajuan semasa, pusingan selesai, jumlah buku, rekod terakhir). Kedua-duanya berasingan. Tab muncul beberapa saat selepas kelas dicipta, dan akan ditukar nama atau dipadam bersama kelas. Tab ini dijana oleh program dan hanya untuk dilihat. Suntingan manual akan ditulis ganti apabila data disimpan semula.
+- **Dua tab bagi setiap kelas**: contohnya "4A" untuk mata (murid, kiraan setiap aktiviti, jumlah), dan "4A · Reading" untuk rekod bacaan (kemajuan semasa, pusingan selesai, jumlah buku, rekod terakhir). Kedua-duanya berasingan. Tab muncul beberapa saat selepas kelas dicipta, dan akan ditukar nama atau dipadam bersama kelas. Tab ini dijana oleh program dan hanya untuk dilihat. Suntingan manual akan ditulis ganti apabila data disimpan semula.
+- **Guna bahasa sendiri**: nama tab dan tajuk lajur dalam bahasa Inggeris secara lalai. Buka `Code.gs` dan ubah `LABELS` di bahagian atas; komen `/* */` selepas setiap baris ada cadangan bahasa Cina, Melayu dan Tamil. Simpan, kemudian gunakan semula (Deploy → Manage deployments → Edit → Version: New version). Tab dengan nama lama akan ditukar nama secara automatik apabila data disimpan semula.
 
 > Selepas mengemas kini `Code.gs`, ingat untuk menggunakan versi baharu (lihat nota selepas langkah 5).
