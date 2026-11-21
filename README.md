@@ -52,7 +52,7 @@ Class Heroes is a classroom points website for teachers. Award points for class 
 
 ### Setup
 
-This is a static website and runs on GitHub Pages. To store data in Google Sheets, deploy the Apps Script following [`gas/README.md`](gas/README.md) (in Chinese) and put its URL in `js/config.js`. If `API_URL` is empty, data stays in the browser only.
+This is a static website and runs on GitHub Pages. To store data in Google Sheets, deploy the Apps Script following [`gas/README.en.md`](gas/README.en.md) and put its URL in `js/config.js`. If `API_URL` is empty, data stays in the browser only.
 
 ---
 
@@ -78,7 +78,7 @@ Wira Kelas ialah laman web mata kelas untuk guru. Beri mata untuk aktiviti kelas
 
 ### Pemasangan
 
-Ini laman web statik dan boleh dijalankan di GitHub Pages. Untuk menyimpan data dalam Google Sheets, pasang Apps Script mengikut [`gas/README.md`](gas/README.md) (dalam bahasa Cina) dan masukkan URL-nya dalam `js/config.js`. Jika `API_URL` dibiarkan kosong, data hanya disimpan dalam pelayar.
+Ini laman web statik dan boleh dijalankan di GitHub Pages. Untuk menyimpan data dalam Google Sheets, pasang Apps Script mengikut [`gas/README.ms.md`](gas/README.ms.md) dan masukkan URL-nya dalam `js/config.js`. Jika `API_URL` dibiarkan kosong, data hanya disimpan dalam pelayar.
 
 ---
 
@@ -104,4 +104,4 @@ Ini laman web statik dan boleh dijalankan di GitHub Pages. Untuk menyimpan data 
 
 ### அமைப்பு
 
-இது ஒரு நிலையான (static) இணையதளம், GitHub Pages-இல் இயங்கும். தரவை Google Sheets-இல் சேமிக்க, [`gas/README.md`](gas/README.md) (சீன மொழியில்) படி Apps Script-ஐ நிறுவி, அதன் URL-ஐ `js/config.js`-இல் சேருங்கள். `API_URL` காலியாக இருந்தால், தரவு உலாவியில் மட்டுமே சேமிக்கப்படும்.
+இது ஒரு நிலையான (static) இணையதளம், GitHub Pages-இல் இயங்கும். தரவை Google Sheets-இல் சேமிக்க, [`gas/README.ta.md`](gas/README.ta.md) படி Apps Script-ஐ நிறுவி, அதன் URL-ஐ `js/config.js`-இல் சேருங்கள். `API_URL` காலியாக இருந்தால், தரவு உலாவியில் மட்டுமே சேமிக்கப்படும்.

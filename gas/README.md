@@ -1,3 +1,5 @@
+[华文](README.md) · [English](README.en.md) · [Bahasa Melayu](README.ms.md) · [தமிழ்](README.ta.md)
+
 # 把数据存到 Google Sheet
 
 1. 新建一个 Google Sheet（名字随意，比如「课堂英雄数据」）。
