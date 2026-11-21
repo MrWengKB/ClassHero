@@ -40,7 +40,7 @@ zh: {
   vWhyEmpty: "没有听到内容", vWhyStudent: "没找到学生姓名", vWhyActivity: "没找到活动名称", vWhyPair: "学生和活动没能对应上",
   vAskingAI: "🤖 规则没对上，正在请 AI 理解…", vAIResult: "🤖 AI 理解为：", vAINo: (note, help) => `🤔 AI 也没看懂${note ? '（' + note + '）' : ''}。${help}`, vAIError: (m, help) => `⚠️ AI 接口出错：${m}。${help}`,
   vErrRefusal: "模型拒绝回答", vErrTimeout: "等待超时", vErrConnect: "连不上接口（网址不对，或该服务不允许网页直接调用）", vErrJson: "AI 返回的不是 JSON",
-  vNoSR: "⚠️ 这个浏览器不支持语音识别，请用电脑版 Chrome 或 Edge。也可以在下面直接打字。", vListening: "👂 正在听…请说「姓名 + 活动」",
+  vNoSR: "⚠️ 这个浏览器不支持语音识别，请用 Chrome、Edge（电脑或安卓手机）或 iPhone 的 Safari。也可以在下面直接打字。", vListening: "👂 正在听…请说「姓名 + 活动」",
   vMicDenied: "麦克风权限被拒绝，请在地址栏左侧允许使用麦克风", vNoSpeech: "没听到声音，再点一次 🎤 试试", vNoMic: "没有找到麦克风", vNetErr: "语音识别需要联网，请检查网络",
   vSRErr: e => `语音识别出错：${e}`, vNotHeard: "没听清，再点一次 🎤 试试",
   vAIOn: name => `🤖 规则看不懂时会请 AI 理解（${name}）`, vAIOff: "只按规则理解。点 ⚙️ 可以接入自己的 AI，说法更自由。", vSettings: "AI 设置",
@@ -49,7 +49,7 @@ zh: {
   vPrivacy: "🔒 密钥只保存在这台电脑的浏览器里，不会上传到课堂英雄或 Google 表格，换电脑需要重新填写。使用 AI 时，你说的那句话、本班学生姓名和活动名称会发送给所选的服务商。",
   vTest: "测试连接", vClear: "清除", vSaved: "✅ 已保存 AI 设置", vSavedNoKey: "已保存（未填密钥，只按规则理解）", vCleared: "已清除，只按规则理解",
   vFillAll: "⚠️ 请填写接口地址、模型名称和密钥", vTesting: "⏳ 正在测试…", vTestOk: n => `✅ 连接成功，AI 返回了 ${n} 条操作（测试不会加分）`,
-  vOther: "其他（OpenAI 兼容接口）", vStopped: "已停止。再点 🎤 重新开始。", vNoResponse: "⚠️ 语音识别没有回应。请用电脑版 Chrome 或 Edge 打开本网站（应用里的内置浏览器、Brave、Firefox 都不行），并确认麦克风可用。也可以在下面打字。", vNoteLang: "中文"
+  vOther: "其他（OpenAI 兼容接口）", vStopped: "已停止。再点 🎤 重新开始。", vNoResponse: "⚠️ 语音识别没有回应。请用 Chrome、Edge（电脑或安卓手机）或 iPhone 的 Safari 打开本网站（应用里的内置浏览器、Brave、Firefox 都不行），并确认麦克风可用。也可以在下面打字。", vNoteLang: "中文"
 },
 
 en: {
@@ -81,7 +81,7 @@ en: {
   vWhyEmpty: "nothing heard", vWhyStudent: "no student name found", vWhyActivity: "no activity name found", vWhyPair: "could not match students to activities",
   vAskingAI: "🤖 Rules did not match, asking the AI…", vAIResult: "🤖 AI understood: ", vAINo: (note, help) => `🤔 The AI did not understand either${note ? ' (' + note + ')' : ''}. ${help}`, vAIError: (m, help) => `⚠️ AI error: ${m}. ${help}`,
   vErrRefusal: "the model declined to answer", vErrTimeout: "timed out", vErrConnect: "cannot connect (wrong address, or the service does not allow calls from web pages)", vErrJson: "the AI did not return JSON",
-  vNoSR: "⚠️ This browser does not support speech recognition. Please use Chrome or Edge on a computer, or type below.", vListening: "👂 Listening… say \"name + activity\"",
+  vNoSR: "⚠️ This browser does not support speech recognition. Please use Chrome or Edge (computer or Android) or Safari on iPhone, or type below.", vListening: "👂 Listening… say \"name + activity\"",
   vMicDenied: "Microphone blocked. Allow it from the icon on the left of the address bar.", vNoSpeech: "Nothing heard. Tap 🎤 to try again.", vNoMic: "No microphone found", vNetErr: "Speech recognition needs an internet connection",
   vSRErr: e => `Speech recognition error: ${e}`, vNotHeard: "Didn't catch that. Tap 🎤 to try again.",
   vAIOn: name => `🤖 The AI helps when the rules don't understand (${name})`, vAIOff: "Rules only. Tap ⚙️ to connect your own AI for freer commands.", vSettings: "AI settings",
@@ -90,7 +90,7 @@ en: {
   vPrivacy: "🔒 The key stays in this browser only. It is not uploaded to Class Heroes or Google Sheets, so you need to enter it again on another computer. When the AI is used, what you said plus this class's student and activity names are sent to the chosen provider.",
   vTest: "Test", vClear: "Clear", vSaved: "✅ AI settings saved", vSavedNoKey: "Saved (no key, rules only)", vCleared: "Cleared, rules only",
   vFillAll: "⚠️ Please fill in the address, model and key", vTesting: "⏳ Testing…", vTestOk: n => `✅ Connected. The AI returned ${n} action(s) (the test adds no points).`,
-  vOther: "Other (OpenAI-compatible)", vStopped: "Stopped. Tap 🎤 to start again.", vNoResponse: "⚠️ Speech recognition is not responding. Please open this site in Chrome or Edge on a computer (built-in app browsers, Brave and Firefox do not work) and check your microphone. You can also type below.", vNoteLang: "English"
+  vOther: "Other (OpenAI-compatible)", vStopped: "Stopped. Tap 🎤 to start again.", vNoResponse: "⚠️ Speech recognition is not responding. Please open this site in Chrome or Edge (computer or Android) or Safari on iPhone (built-in app browsers, Brave and Firefox do not work) and check your microphone. You can also type below.", vNoteLang: "English"
 },
 
 ms: {
@@ -122,7 +122,7 @@ ms: {
   vWhyEmpty: "tiada apa-apa didengar", vWhyStudent: "nama murid tidak dijumpai", vWhyActivity: "nama aktiviti tidak dijumpai", vWhyPair: "murid dan aktiviti tidak dapat dipadankan",
   vAskingAI: "🤖 Peraturan tidak sepadan, sedang bertanya kepada AI…", vAIResult: "🤖 Kefahaman AI: ", vAINo: (note, help) => `🤔 AI juga tidak faham${note ? ' (' + note + ')' : ''}. ${help}`, vAIError: (m, help) => `⚠️ Ralat AI: ${m}. ${help}`,
   vErrRefusal: "model enggan menjawab", vErrTimeout: "masa menunggu tamat", vErrConnect: "tidak dapat disambungkan (alamat salah, atau perkhidmatan tidak membenarkan panggilan dari laman web)", vErrJson: "AI tidak memulangkan JSON",
-  vNoSR: "⚠️ Pelayar ini tidak menyokong pengecaman suara. Sila guna Chrome atau Edge pada komputer, atau taip di bawah.", vListening: "👂 Sedang mendengar… sebut \"nama + aktiviti\"",
+  vNoSR: "⚠️ Pelayar ini tidak menyokong pengecaman suara. Sila guna Chrome atau Edge (komputer atau Android) atau Safari pada iPhone, atau taip di bawah.", vListening: "👂 Sedang mendengar… sebut \"nama + aktiviti\"",
   vMicDenied: "Mikrofon disekat. Benarkan melalui ikon di sebelah kiri bar alamat.", vNoSpeech: "Tiada suara didengar. Tekan 🎤 untuk cuba lagi.", vNoMic: "Mikrofon tidak dijumpai", vNetErr: "Pengecaman suara memerlukan sambungan internet",
   vSRErr: e => `Ralat pengecaman suara: ${e}`, vNotHeard: "Kurang jelas. Tekan 🎤 untuk cuba lagi.",
   vAIOn: name => `🤖 AI membantu apabila peraturan tidak faham (${name})`, vAIOff: "Peraturan sahaja. Tekan ⚙️ untuk menyambung AI anda sendiri.", vSettings: "Tetapan AI",
@@ -131,7 +131,7 @@ ms: {
   vPrivacy: "🔒 Kunci hanya disimpan dalam pelayar ini. Ia tidak dimuat naik ke Wira Kelas atau Google Sheets, jadi perlu diisi semula di komputer lain. Apabila AI digunakan, ayat yang anda sebut serta nama murid dan aktiviti kelas ini dihantar kepada penyedia yang dipilih.",
   vTest: "Uji", vClear: "Kosongkan", vSaved: "✅ Tetapan AI disimpan", vSavedNoKey: "Disimpan (tiada kunci, peraturan sahaja)", vCleared: "Dikosongkan, peraturan sahaja",
   vFillAll: "⚠️ Sila isi alamat, model dan kunci", vTesting: "⏳ Sedang menguji…", vTestOk: n => `✅ Berjaya disambungkan. AI memulangkan ${n} tindakan (ujian tidak menambah mata).`,
-  vOther: "Lain-lain (serasi OpenAI)", vStopped: "Dihentikan. Tekan 🎤 untuk mula semula.", vNoResponse: "⚠️ Pengecaman suara tidak bertindak balas. Sila buka laman ini dengan Chrome atau Edge pada komputer (pelayar terbina dalam aplikasi, Brave dan Firefox tidak boleh) dan semak mikrofon. Anda juga boleh menaip di bawah.", vNoteLang: "Bahasa Melayu"
+  vOther: "Lain-lain (serasi OpenAI)", vStopped: "Dihentikan. Tekan 🎤 untuk mula semula.", vNoResponse: "⚠️ Pengecaman suara tidak bertindak balas. Sila buka laman ini dengan Chrome atau Edge (komputer atau Android) atau Safari pada iPhone (pelayar terbina dalam aplikasi, Brave dan Firefox tidak boleh) dan semak mikrofon. Anda juga boleh menaip di bawah.", vNoteLang: "Bahasa Melayu"
 },
 
 ta: {
@@ -163,7 +163,7 @@ ta: {
   vWhyEmpty: "எதுவும் கேட்கவில்லை", vWhyStudent: "மாணவர் பெயர் கிடைக்கவில்லை", vWhyActivity: "செயல்பாட்டின் பெயர் கிடைக்கவில்லை", vWhyPair: "மாணவர்களையும் செயல்பாடுகளையும் பொருத்த முடியவில்லை",
   vAskingAI: "🤖 விதிகள் பொருந்தவில்லை, AI-யிடம் கேட்கிறது…", vAIResult: "🤖 AI புரிந்துகொண்டது: ", vAINo: (note, help) => `🤔 AI-க்கும் புரியவில்லை${note ? ' (' + note + ')' : ''}. ${help}`, vAIError: (m, help) => `⚠️ AI பிழை: ${m}. ${help}`,
   vErrRefusal: "மாதிரி பதிலளிக்க மறுத்தது", vErrTimeout: "நேரம் கடந்தது", vErrConnect: "இணைக்க முடியவில்லை (முகவரி தவறு, அல்லது இணையப் பக்கங்களிலிருந்து அழைப்பதை அந்தச் சேவை அனுமதிக்கவில்லை)", vErrJson: "AI JSON தரவில்லை",
-  vNoSR: "⚠️ இந்த உலாவி பேச்சு அறிதலை ஆதரிக்கவில்லை. கணினியில் Chrome அல்லது Edge பயன்படுத்துங்கள், அல்லது கீழே தட்டச்சு செய்யுங்கள்.", vListening: "👂 கேட்கிறது… \"பெயர் + செயல்பாடு\" என்று சொல்லுங்கள்",
+  vNoSR: "⚠️ இந்த உலாவி பேச்சு அறிதலை ஆதரிக்கவில்லை. Chrome அல்லது Edge (கணினி அல்லது Android) அல்லது iPhone Safari பயன்படுத்துங்கள், அல்லது கீழே தட்டச்சு செய்யுங்கள்.", vListening: "👂 கேட்கிறது… \"பெயர் + செயல்பாடு\" என்று சொல்லுங்கள்",
   vMicDenied: "ஒலிவாங்கி தடுக்கப்பட்டுள்ளது. முகவரிப் பட்டியின் இடப்பக்கச் சின்னத்தில் அனுமதியுங்கள்.", vNoSpeech: "எதுவும் கேட்கவில்லை. மீண்டும் 🎤 அழுத்துங்கள்.", vNoMic: "ஒலிவாங்கி கிடைக்கவில்லை", vNetErr: "பேச்சு அறிதலுக்கு இணைய இணைப்பு தேவை",
   vSRErr: e => `பேச்சு அறிதல் பிழை: ${e}`, vNotHeard: "சரியாகக் கேட்கவில்லை. மீண்டும் 🎤 அழுத்துங்கள்.",
   vAIOn: name => `🤖 விதிகளுக்குப் புரியாதபோது AI உதவும் (${name})`, vAIOff: "விதிகள் மட்டும். உங்கள் சொந்த AI-ஐ இணைக்க ⚙️ அழுத்துங்கள்.", vSettings: "AI அமைப்புகள்",
@@ -172,7 +172,7 @@ ta: {
   vPrivacy: "🔒 சாவி இந்த உலாவியில் மட்டுமே சேமிக்கப்படும். அது வகுப்பறை நாயகர்கள் அல்லது Google Sheets-க்குப் பதிவேற்றப்படாது, எனவே வேறு கணினியில் மீண்டும் நிரப்ப வேண்டும். AI பயன்படுத்தும்போது, நீங்கள் சொன்னதும் இந்த வகுப்பின் மாணவர், செயல்பாட்டுப் பெயர்களும் தேர்ந்தெடுத்த வழங்குநருக்கு அனுப்பப்படும்.",
   vTest: "சோதி", vClear: "அழி", vSaved: "✅ AI அமைப்புகள் சேமிக்கப்பட்டன", vSavedNoKey: "சேமிக்கப்பட்டது (சாவி இல்லை, விதிகள் மட்டும்)", vCleared: "அழிக்கப்பட்டது, விதிகள் மட்டும்",
   vFillAll: "⚠️ முகவரி, மாதிரி, சாவி மூன்றையும் நிரப்புங்கள்", vTesting: "⏳ சோதிக்கிறது…", vTestOk: n => `✅ இணைக்கப்பட்டது. AI ${n} செயல்களைத் தந்தது (சோதனையில் புள்ளிகள் சேர்க்கப்படாது).`,
-  vOther: "பிற (OpenAI இணக்கமானது)", vStopped: "நிறுத்தப்பட்டது. மீண்டும் தொடங்க 🎤 அழுத்துங்கள்.", vNoResponse: "⚠️ பேச்சு அறிதல் பதிலளிக்கவில்லை. கணினியில் Chrome அல்லது Edge-இல் இந்தத் தளத்தைத் திறங்கள் (செயலிகளுக்குள் உள்ள உலாவி, Brave, Firefox வேலை செய்யாது), ஒலிவாங்கியையும் சரிபாருங்கள். கீழே தட்டச்சும் செய்யலாம்.", vNoteLang: "தமிழ்"
+  vOther: "பிற (OpenAI இணக்கமானது)", vStopped: "நிறுத்தப்பட்டது. மீண்டும் தொடங்க 🎤 அழுத்துங்கள்.", vNoResponse: "⚠️ பேச்சு அறிதல் பதிலளிக்கவில்லை. Chrome அல்லது Edge (கணினி அல்லது Android) அல்லது iPhone Safari-இல் இந்தத் தளத்தைத் திறங்கள் (செயலிகளுக்குள் உள்ள உலாவி, Brave, Firefox வேலை செய்யாது), ஒலிவாங்கியையும் சரிபாருங்கள். கீழே தட்டச்சும் செய்யலாம்.", vNoteLang: "தமிழ்"
 }
 };
 
