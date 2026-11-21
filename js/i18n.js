@@ -30,26 +30,7 @@ zh: {
   wheelMake: "✨ 生成转盘", wheelFill: "👥 用本班学生名单", spin: "转动", notPicked: (r, t) => `📋 还没抽到（${r}/${t}）`, allPicked: "🎊 全部都抽到过了！",
   wheelMin: n => `⚠️ 至少需要 ${n} 项`, wheelMax: n => `⚠️ 最多 ${n} 项`, wheelReady: n => `✅ 共 ${n} 项，点中间的按钮转动`,
   // 倒计时
-  timer: "倒计时", timeUp: "时间到！", minU: "分", secU: "秒", secs: n => `${n} 秒`, mins: n => `${n} 分钟`, pause: "暂停", resume: "继续", start: "开始", addMin: "+1 分钟", reset: "重置",
-  // 语音加分
-  vTitle: "语音加分", vMicTitle: "语音加分：点一下，说「姓名 + 活动」", vLangTitle: "识别语言", vTypeHere: "也可以在这里打字", vSend: "发送",
-  vIntro: (ex, kw) => `点 🎤 后说「姓名 + 活动」，例如「${ex}」。可以一次说几个人，也可以说 ${kw}。`, vKw: "「扣」「两次」「全班」",
-  vHelp: ex => `请按「学生姓名 + 活动名称」来说，例如「${ex}」。`, vActsList: l => `本班活动：${l}。`, vSep: "、", vLineSep: "；",
-  vTimes: n => `（${n} 次）`, vUndone: l => `↩ 已撤销：${l}`, vNothingToRemove: "⚠️ 没有可以扣的分（次数已经是 0）",
-  vNoData: "⚠️ 本班还没有学生或活动，先在「管理」页添加。", vFuzzy: "✅（按近似读音匹配）", vNotUnderstood: (why, help) => `🤔 没听懂（${why}）。${help} 想说得更随意，可以点 ⚙️ 填写 AI 接口。`,
-  vWhyEmpty: "没有听到内容", vWhyStudent: "没找到学生姓名", vWhyActivity: "没找到活动名称", vWhyPair: "学生和活动没能对应上",
-  vAskingAI: "🤖 规则没对上，正在请 AI 理解…", vAIResult: "🤖 AI 理解为：", vAINo: (note, help) => `🤔 AI 也没看懂${note ? '（' + note + '）' : ''}。${help}`, vAIError: (m, help) => `⚠️ AI 接口出错：${m}。${help}`,
-  vErrRefusal: "模型拒绝回答", vErrTimeout: "等待超时", vErrConnect: "连不上接口（网址不对，或该服务不允许网页直接调用）", vErrJson: "AI 返回的不是 JSON",
-  vNoSR: "⚠️ 这个浏览器不支持语音识别，请用 Chrome、Edge（电脑或安卓手机）或 iPhone 的 Safari。也可以在下面直接打字。", vListening: "👂 正在听…请说「姓名 + 活动」",
-  vMicDenied: "麦克风权限被拒绝，请在地址栏左侧允许使用麦克风", vNoSpeech: "没听到声音，再点一次 🎤 试试", vNoMic: "没有找到麦克风", vNetErr: "语音识别需要联网，请检查网络",
-  vSRErr: e => `语音识别出错：${e}`, vNotHeard: "没听清，再点一次 🎤 试试",
-  vAIOn: name => `🤖 规则看不懂时会请 AI 理解（${name}）`, vAIOff: "只按规则理解。点 ⚙️ 可以接入自己的 AI，说法更自由。", vSettings: "AI 设置",
-  vSetTitle: "⚙️ 语音指令 · AI 设置（可选）", vSetIntro: "不填也能用：按「学生姓名 + 活动名称」说就行。填了以后，规则看不懂的话会交给 AI 理解，比如「小明今天听写全对，给他加一下」。",
-  vProvider: "服务商", vBase: "接口地址", vModel: "模型名称", vKey: "API 密钥",
-  vPrivacy: "🔒 密钥只保存在这台电脑的浏览器里，不会上传到课堂英雄或 Google 表格，换电脑需要重新填写。使用 AI 时，你说的那句话、本班学生姓名和活动名称会发送给所选的服务商。",
-  vTest: "测试连接", vClear: "清除", vSaved: "✅ 已保存 AI 设置", vSavedNoKey: "已保存（未填密钥，只按规则理解）", vCleared: "已清除，只按规则理解",
-  vFillAll: "⚠️ 请填写接口地址、模型名称和密钥", vTesting: "⏳ 正在测试…", vTestOk: n => `✅ 连接成功，AI 返回了 ${n} 条操作（测试不会加分）`,
-  vOther: "其他（OpenAI 兼容接口）", vStopped: "已停止。再点 🎤 重新开始。", vNoResponse: "⚠️ 语音识别没有回应。请用 Chrome、Edge（电脑或安卓手机）或 iPhone 的 Safari 打开本网站（应用里的内置浏览器、Brave、Firefox 都不行），并确认麦克风可用。也可以在下面打字。", vSvcDenied: "语音识别服务没有开启。iPhone/iPad/Mac：到 设置 → Siri（或 键盘）里打开“听写”。安卓：到 设置 → 应用 → Google，给“麦克风”权限。", vIOSSafari: "iPhone/iPad 上的 Chrome、Edge 等浏览器不能用语音识别，请改用 Safari 打开本网站。", vProcessing: "⏳ 正在识别…", vKbMode: "用键盘语音（手机网页识别不可用时）", vKbHint: "点这里，用键盘上的 🎤 说话", vKbSwitched: "这台手机的网页语音识别不可用，已改用键盘语音：点 🎤 后，用键盘（如 Gboard）上的麦克风说「姓名 + 活动」，说完会自动加分。可在下方取消勾选。", vNoteLang: "中文"
+  timer: "倒计时", timeUp: "时间到！", minU: "分", secU: "秒", secs: n => `${n} 秒`, mins: n => `${n} 分钟`, pause: "暂停", resume: "继续", start: "开始", addMin: "+1 分钟", reset: "重置"
 },
 
 en: {
@@ -72,25 +53,7 @@ en: {
   wheel: "Lucky wheel", close: "Close", wheelPh: (a, b) => `One per line, ${a}-${b} items`, wheelTip: "✏️ Starts with this class's students. You can change it to anything, one per line.",
   wheelMake: "✨ Make wheel", wheelFill: "👥 Use class list", spin: "Spin", notPicked: (r, t) => `📋 Not picked yet (${r}/${t})`, allPicked: "🎊 Everyone has been picked!",
   wheelMin: n => `⚠️ Need at least ${n} items`, wheelMax: n => `⚠️ At most ${n} items`, wheelReady: n => `✅ ${n} items. Tap the middle button to spin.`,
-  timer: "Timer", timeUp: "Time's up!", minU: "min", secU: "sec", secs: n => `${n} sec`, mins: n => `${n} min`, pause: "Pause", resume: "Resume", start: "Start", addMin: "+1 min", reset: "Reset",
-  vTitle: "Voice points", vMicTitle: "Voice points: tap and say \"name + activity\"", vLangTitle: "Speech language", vTypeHere: "Or type here", vSend: "Send",
-  vIntro: (ex, kw) => `Tap 🎤 and say "name + activity", e.g. "${ex}". You can name several students at once, or say ${kw}.`, vKw: '"minus" "twice" "whole class"',
-  vHelp: ex => `Please say "student name + activity name", e.g. "${ex}".`, vActsList: l => `Activities in this class: ${l}.`, vSep: ", ", vLineSep: "; ",
-  vTimes: n => ` (${n} times)`, vUndone: l => `↩ Undone: ${l}`, vNothingToRemove: "⚠️ Nothing to take away (count is already 0)",
-  vNoData: "⚠️ This class has no students or activities yet. Add them on the Manage page first.", vFuzzy: "✅ (closest match) ", vNotUnderstood: (why, help) => `🤔 Not understood (${why}). ${help} To speak more freely, tap ⚙️ and add an AI service.`,
-  vWhyEmpty: "nothing heard", vWhyStudent: "no student name found", vWhyActivity: "no activity name found", vWhyPair: "could not match students to activities",
-  vAskingAI: "🤖 Rules did not match, asking the AI…", vAIResult: "🤖 AI understood: ", vAINo: (note, help) => `🤔 The AI did not understand either${note ? ' (' + note + ')' : ''}. ${help}`, vAIError: (m, help) => `⚠️ AI error: ${m}. ${help}`,
-  vErrRefusal: "the model declined to answer", vErrTimeout: "timed out", vErrConnect: "cannot connect (wrong address, or the service does not allow calls from web pages)", vErrJson: "the AI did not return JSON",
-  vNoSR: "⚠️ This browser does not support speech recognition. Please use Chrome or Edge (computer or Android) or Safari on iPhone, or type below.", vListening: "👂 Listening… say \"name + activity\"",
-  vMicDenied: "Microphone blocked. Allow it from the icon on the left of the address bar.", vNoSpeech: "Nothing heard. Tap 🎤 to try again.", vNoMic: "No microphone found", vNetErr: "Speech recognition needs an internet connection",
-  vSRErr: e => `Speech recognition error: ${e}`, vNotHeard: "Didn't catch that. Tap 🎤 to try again.",
-  vAIOn: name => `🤖 The AI helps when the rules don't understand (${name})`, vAIOff: "Rules only. Tap ⚙️ to connect your own AI for freer commands.", vSettings: "AI settings",
-  vSetTitle: "⚙️ Voice commands · AI settings (optional)", vSetIntro: "Works without this: just say \"student name + activity name\". With an AI service, commands the rules don't understand are passed to the AI, e.g. \"Tom got all his spelling right today, give him the points\".",
-  vProvider: "Provider", vBase: "API address", vModel: "Model name", vKey: "API key",
-  vPrivacy: "🔒 The key stays in this browser only. It is not uploaded to Class Heroes or Google Sheets, so you need to enter it again on another computer. When the AI is used, what you said plus this class's student and activity names are sent to the chosen provider.",
-  vTest: "Test", vClear: "Clear", vSaved: "✅ AI settings saved", vSavedNoKey: "Saved (no key, rules only)", vCleared: "Cleared, rules only",
-  vFillAll: "⚠️ Please fill in the address, model and key", vTesting: "⏳ Testing…", vTestOk: n => `✅ Connected. The AI returned ${n} action(s) (the test adds no points).`,
-  vOther: "Other (OpenAI-compatible)", vStopped: "Stopped. Tap 🎤 to start again.", vNoResponse: "⚠️ Speech recognition is not responding. Please open this site in Chrome or Edge (computer or Android) or Safari on iPhone (built-in app browsers, Brave and Firefox do not work) and check your microphone. You can also type below.", vSvcDenied: "Speech recognition service is off. iPhone/iPad/Mac: turn on Dictation in Settings → Siri (or Keyboard). Android: Settings → Apps → Google → allow Microphone.", vIOSSafari: "On iPhone/iPad, Chrome, Edge and other browsers cannot use speech recognition. Please open this site in Safari.", vProcessing: "⏳ Recognising…", vKbMode: "Use keyboard voice typing (if the phone's web speech does not work)", vKbHint: "Tap here and use the 🎤 on your keyboard", vKbSwitched: "Web speech recognition does not work on this phone, so keyboard voice typing is now on: tap 🎤, then use the microphone on your keyboard (e.g. Gboard) to say \"name + activity\". Points are added automatically. You can untick this below.", vNoteLang: "English"
+  timer: "Timer", timeUp: "Time's up!", minU: "min", secU: "sec", secs: n => `${n} sec`, mins: n => `${n} min`, pause: "Pause", resume: "Resume", start: "Start", addMin: "+1 min", reset: "Reset"
 },
 
 ms: {
@@ -113,25 +76,7 @@ ms: {
   wheel: "Roda bertuah", close: "Tutup", wheelPh: (a, b) => `Satu setiap baris, ${a}-${b} item`, wheelTip: "✏️ Senarai murid kelas ini digunakan dahulu. Anda boleh tukar kepada apa-apa pilihan, satu setiap baris.",
   wheelMake: "✨ Jana roda", wheelFill: "👥 Guna senarai murid", spin: "Putar", notPicked: (r, t) => `📋 Belum terpilih (${r}/${t})`, allPicked: "🎊 Semua sudah terpilih!",
   wheelMin: n => `⚠️ Perlu sekurang-kurangnya ${n} item`, wheelMax: n => `⚠️ Paling banyak ${n} item`, wheelReady: n => `✅ ${n} item. Tekan butang di tengah untuk memutar.`,
-  timer: "Pemasa", timeUp: "Masa tamat!", minU: "minit", secU: "saat", secs: n => `${n} saat`, mins: n => `${n} minit`, pause: "Jeda", resume: "Sambung", start: "Mula", addMin: "+1 minit", reset: "Set semula",
-  vTitle: "Mata melalui suara", vMicTitle: "Mata melalui suara: tekan dan sebut \"nama + aktiviti\"", vLangTitle: "Bahasa pertuturan", vTypeHere: "Atau taip di sini", vSend: "Hantar",
-  vIntro: (ex, kw) => `Tekan 🎤 dan sebut "nama + aktiviti", contohnya "${ex}". Boleh sebut beberapa murid sekali gus, atau sebut ${kw}.`, vKw: '"tolak" "dua kali" "semua"',
-  vHelp: ex => `Sila sebut "nama murid + nama aktiviti", contohnya "${ex}".`, vActsList: l => `Aktiviti kelas ini: ${l}.`, vSep: ", ", vLineSep: "; ",
-  vTimes: n => ` (${n} kali)`, vUndone: l => `↩ Dibatalkan: ${l}`, vNothingToRemove: "⚠️ Tiada mata untuk ditolak (kiraan sudah 0)",
-  vNoData: "⚠️ Kelas ini belum ada murid atau aktiviti. Tambah dahulu di halaman Urus.", vFuzzy: "✅ (padanan terdekat) ", vNotUnderstood: (why, help) => `🤔 Tidak faham (${why}). ${help} Untuk bercakap dengan lebih bebas, tekan ⚙️ dan tambah perkhidmatan AI.`,
-  vWhyEmpty: "tiada apa-apa didengar", vWhyStudent: "nama murid tidak dijumpai", vWhyActivity: "nama aktiviti tidak dijumpai", vWhyPair: "murid dan aktiviti tidak dapat dipadankan",
-  vAskingAI: "🤖 Peraturan tidak sepadan, sedang bertanya kepada AI…", vAIResult: "🤖 Kefahaman AI: ", vAINo: (note, help) => `🤔 AI juga tidak faham${note ? ' (' + note + ')' : ''}. ${help}`, vAIError: (m, help) => `⚠️ Ralat AI: ${m}. ${help}`,
-  vErrRefusal: "model enggan menjawab", vErrTimeout: "masa menunggu tamat", vErrConnect: "tidak dapat disambungkan (alamat salah, atau perkhidmatan tidak membenarkan panggilan dari laman web)", vErrJson: "AI tidak memulangkan JSON",
-  vNoSR: "⚠️ Pelayar ini tidak menyokong pengecaman suara. Sila guna Chrome atau Edge (komputer atau Android) atau Safari pada iPhone, atau taip di bawah.", vListening: "👂 Sedang mendengar… sebut \"nama + aktiviti\"",
-  vMicDenied: "Mikrofon disekat. Benarkan melalui ikon di sebelah kiri bar alamat.", vNoSpeech: "Tiada suara didengar. Tekan 🎤 untuk cuba lagi.", vNoMic: "Mikrofon tidak dijumpai", vNetErr: "Pengecaman suara memerlukan sambungan internet",
-  vSRErr: e => `Ralat pengecaman suara: ${e}`, vNotHeard: "Kurang jelas. Tekan 🎤 untuk cuba lagi.",
-  vAIOn: name => `🤖 AI membantu apabila peraturan tidak faham (${name})`, vAIOff: "Peraturan sahaja. Tekan ⚙️ untuk menyambung AI anda sendiri.", vSettings: "Tetapan AI",
-  vSetTitle: "⚙️ Arahan suara · Tetapan AI (pilihan)", vSetIntro: "Boleh digunakan tanpa tetapan ini: sebut sahaja \"nama murid + nama aktiviti\". Dengan AI, arahan yang tidak difahami oleh peraturan akan dihantar kepada AI.",
-  vProvider: "Penyedia", vBase: "Alamat API", vModel: "Nama model", vKey: "Kunci API",
-  vPrivacy: "🔒 Kunci hanya disimpan dalam pelayar ini. Ia tidak dimuat naik ke Wira Kelas atau Google Sheets, jadi perlu diisi semula di komputer lain. Apabila AI digunakan, ayat yang anda sebut serta nama murid dan aktiviti kelas ini dihantar kepada penyedia yang dipilih.",
-  vTest: "Uji", vClear: "Kosongkan", vSaved: "✅ Tetapan AI disimpan", vSavedNoKey: "Disimpan (tiada kunci, peraturan sahaja)", vCleared: "Dikosongkan, peraturan sahaja",
-  vFillAll: "⚠️ Sila isi alamat, model dan kunci", vTesting: "⏳ Sedang menguji…", vTestOk: n => `✅ Berjaya disambungkan. AI memulangkan ${n} tindakan (ujian tidak menambah mata).`,
-  vOther: "Lain-lain (serasi OpenAI)", vStopped: "Dihentikan. Tekan 🎤 untuk mula semula.", vNoResponse: "⚠️ Pengecaman suara tidak bertindak balas. Sila buka laman ini dengan Chrome atau Edge (komputer atau Android) atau Safari pada iPhone (pelayar terbina dalam aplikasi, Brave dan Firefox tidak boleh) dan semak mikrofon. Anda juga boleh menaip di bawah.", vSvcDenied: "Perkhidmatan pengecaman suara tidak aktif. iPhone/iPad/Mac: hidupkan Imlak (Dictation) di Tetapan → Siri (atau Papan Kekunci). Android: Tetapan → Apl → Google → benarkan Mikrofon.", vIOSSafari: "Pada iPhone/iPad, Chrome, Edge dan pelayar lain tidak boleh menggunakan pengecaman suara. Sila buka laman ini dengan Safari.", vProcessing: "⏳ Sedang mengecam…", vKbMode: "Guna input suara papan kekunci (jika pengecaman suara web tidak berfungsi)", vKbHint: "Tekan di sini dan guna 🎤 pada papan kekunci", vKbSwitched: "Pengecaman suara web tidak berfungsi pada telefon ini, jadi input suara papan kekunci diaktifkan: tekan 🎤, kemudian guna mikrofon pada papan kekunci (cth. Gboard) untuk sebut \"nama + aktiviti\". Mata ditambah secara automatik. Boleh dinyahtanda di bawah.", vNoteLang: "Bahasa Melayu"
+  timer: "Pemasa", timeUp: "Masa tamat!", minU: "minit", secU: "saat", secs: n => `${n} saat`, mins: n => `${n} minit`, pause: "Jeda", resume: "Sambung", start: "Mula", addMin: "+1 minit", reset: "Set semula"
 },
 
 ta: {
@@ -154,25 +99,7 @@ ta: {
   wheel: "அதிர்ஷ்டச் சக்கரம்", close: "மூடு", wheelPh: (a, b) => `ஒரு வரிக்கு ஒன்று, ${a}-${b} உருப்படிகள்`, wheelTip: "✏️ இந்த வகுப்பின் மாணவர் பட்டியலுடன் தொடங்குகிறது. எதையும் மாற்றலாம், ஒரு வரிக்கு ஒன்று.",
   wheelMake: "✨ சக்கரத்தை உருவாக்கு", wheelFill: "👥 வகுப்புப் பட்டியலைப் பயன்படுத்து", spin: "சுழற்று", notPicked: (r, t) => `📋 இன்னும் தேர்வாகாதவர்கள் (${r}/${t})`, allPicked: "🎊 அனைவரும் தேர்வாகிவிட்டனர்!",
   wheelMin: n => `⚠️ குறைந்தது ${n} உருப்படிகள் தேவை`, wheelMax: n => `⚠️ அதிகபட்சம் ${n} உருப்படிகள்`, wheelReady: n => `✅ ${n} உருப்படிகள். சுழற்ற நடுவில் உள்ள பொத்தானை அழுத்துங்கள்.`,
-  timer: "நேரக் கணிப்பான்", timeUp: "நேரம் முடிந்தது!", minU: "நிமி", secU: "வினா", secs: n => `${n} வினாடி`, mins: n => `${n} நிமிடம்`, pause: "இடைநிறுத்து", resume: "தொடர்", start: "தொடங்கு", addMin: "+1 நிமிடம்", reset: "மீட்டமை",
-  vTitle: "குரல் மூலம் புள்ளிகள்", vMicTitle: "குரல் மூலம் புள்ளிகள்: அழுத்தி \"பெயர் + செயல்பாடு\" என்று சொல்லுங்கள்", vLangTitle: "பேச்சு மொழி", vTypeHere: "அல்லது இங்கே தட்டச்சு செய்யுங்கள்", vSend: "அனுப்பு",
-  vIntro: (ex, kw) => `🎤 அழுத்தி "பெயர் + செயல்பாடு" என்று சொல்லுங்கள், எ.கா. "${ex}". பல மாணவர்களை ஒரே நேரத்தில் சொல்லலாம், அல்லது ${kw} என்று சொல்லலாம்.`, vKw: '"கழி" "2 முறை" "அனைவரும்"',
-  vHelp: ex => `"மாணவர் பெயர் + செயல்பாட்டின் பெயர்" என்று சொல்லுங்கள், எ.கா. "${ex}".`, vActsList: l => `இந்த வகுப்பின் செயல்பாடுகள்: ${l}.`, vSep: ", ", vLineSep: "; ",
-  vTimes: n => ` (${n} முறை)`, vUndone: l => `↩ செயல்தவிர்க்கப்பட்டது: ${l}`, vNothingToRemove: "⚠️ குறைக்கப் புள்ளிகள் இல்லை (எண்ணிக்கை ஏற்கனவே 0)",
-  vNoData: "⚠️ இந்த வகுப்பில் இன்னும் மாணவர்களோ செயல்பாடுகளோ இல்லை. முதலில் நிர்வாகப் பக்கத்தில் சேருங்கள்.", vFuzzy: "✅ (நெருங்கிய பொருத்தம்) ", vNotUnderstood: (why, help) => `🤔 புரியவில்லை (${why}). ${help} இன்னும் சுதந்திரமாகப் பேச ⚙️ அழுத்தி AI சேவையைச் சேருங்கள்.`,
-  vWhyEmpty: "எதுவும் கேட்கவில்லை", vWhyStudent: "மாணவர் பெயர் கிடைக்கவில்லை", vWhyActivity: "செயல்பாட்டின் பெயர் கிடைக்கவில்லை", vWhyPair: "மாணவர்களையும் செயல்பாடுகளையும் பொருத்த முடியவில்லை",
-  vAskingAI: "🤖 விதிகள் பொருந்தவில்லை, AI-யிடம் கேட்கிறது…", vAIResult: "🤖 AI புரிந்துகொண்டது: ", vAINo: (note, help) => `🤔 AI-க்கும் புரியவில்லை${note ? ' (' + note + ')' : ''}. ${help}`, vAIError: (m, help) => `⚠️ AI பிழை: ${m}. ${help}`,
-  vErrRefusal: "மாதிரி பதிலளிக்க மறுத்தது", vErrTimeout: "நேரம் கடந்தது", vErrConnect: "இணைக்க முடியவில்லை (முகவரி தவறு, அல்லது இணையப் பக்கங்களிலிருந்து அழைப்பதை அந்தச் சேவை அனுமதிக்கவில்லை)", vErrJson: "AI JSON தரவில்லை",
-  vNoSR: "⚠️ இந்த உலாவி பேச்சு அறிதலை ஆதரிக்கவில்லை. Chrome அல்லது Edge (கணினி அல்லது Android) அல்லது iPhone Safari பயன்படுத்துங்கள், அல்லது கீழே தட்டச்சு செய்யுங்கள்.", vListening: "👂 கேட்கிறது… \"பெயர் + செயல்பாடு\" என்று சொல்லுங்கள்",
-  vMicDenied: "ஒலிவாங்கி தடுக்கப்பட்டுள்ளது. முகவரிப் பட்டியின் இடப்பக்கச் சின்னத்தில் அனுமதியுங்கள்.", vNoSpeech: "எதுவும் கேட்கவில்லை. மீண்டும் 🎤 அழுத்துங்கள்.", vNoMic: "ஒலிவாங்கி கிடைக்கவில்லை", vNetErr: "பேச்சு அறிதலுக்கு இணைய இணைப்பு தேவை",
-  vSRErr: e => `பேச்சு அறிதல் பிழை: ${e}`, vNotHeard: "சரியாகக் கேட்கவில்லை. மீண்டும் 🎤 அழுத்துங்கள்.",
-  vAIOn: name => `🤖 விதிகளுக்குப் புரியாதபோது AI உதவும் (${name})`, vAIOff: "விதிகள் மட்டும். உங்கள் சொந்த AI-ஐ இணைக்க ⚙️ அழுத்துங்கள்.", vSettings: "AI அமைப்புகள்",
-  vSetTitle: "⚙️ குரல் கட்டளைகள் · AI அமைப்புகள் (விருப்பம்)", vSetIntro: "இது இல்லாமலும் வேலை செய்யும்: \"மாணவர் பெயர் + செயல்பாட்டின் பெயர்\" என்று சொன்னால் போதும். AI சேர்த்தால், விதிகளுக்குப் புரியாத கட்டளைகள் AI-யிடம் அனுப்பப்படும்.",
-  vProvider: "சேவை வழங்குநர்", vBase: "API முகவரி", vModel: "மாதிரியின் பெயர்", vKey: "API சாவி",
-  vPrivacy: "🔒 சாவி இந்த உலாவியில் மட்டுமே சேமிக்கப்படும். அது வகுப்பறை நாயகர்கள் அல்லது Google Sheets-க்குப் பதிவேற்றப்படாது, எனவே வேறு கணினியில் மீண்டும் நிரப்ப வேண்டும். AI பயன்படுத்தும்போது, நீங்கள் சொன்னதும் இந்த வகுப்பின் மாணவர், செயல்பாட்டுப் பெயர்களும் தேர்ந்தெடுத்த வழங்குநருக்கு அனுப்பப்படும்.",
-  vTest: "சோதி", vClear: "அழி", vSaved: "✅ AI அமைப்புகள் சேமிக்கப்பட்டன", vSavedNoKey: "சேமிக்கப்பட்டது (சாவி இல்லை, விதிகள் மட்டும்)", vCleared: "அழிக்கப்பட்டது, விதிகள் மட்டும்",
-  vFillAll: "⚠️ முகவரி, மாதிரி, சாவி மூன்றையும் நிரப்புங்கள்", vTesting: "⏳ சோதிக்கிறது…", vTestOk: n => `✅ இணைக்கப்பட்டது. AI ${n} செயல்களைத் தந்தது (சோதனையில் புள்ளிகள் சேர்க்கப்படாது).`,
-  vOther: "பிற (OpenAI இணக்கமானது)", vStopped: "நிறுத்தப்பட்டது. மீண்டும் தொடங்க 🎤 அழுத்துங்கள்.", vNoResponse: "⚠️ பேச்சு அறிதல் பதிலளிக்கவில்லை. Chrome அல்லது Edge (கணினி அல்லது Android) அல்லது iPhone Safari-இல் இந்தத் தளத்தைத் திறங்கள் (செயலிகளுக்குள் உள்ள உலாவி, Brave, Firefox வேலை செய்யாது), ஒலிவாங்கியையும் சரிபாருங்கள். கீழே தட்டச்சும் செய்யலாம்.", vSvcDenied: "பேச்சு அறிதல் சேவை இயக்கப்படவில்லை. iPhone/iPad/Mac: அமைப்புகள் → Siri (அல்லது விசைப்பலகை) என்பதில் Dictation-ஐ இயக்குங்கள். Android: அமைப்புகள் → செயலிகள் → Google → ஒலிவாங்கியை அனுமதியுங்கள்.", vIOSSafari: "iPhone/iPad-இல் Chrome, Edge போன்ற உலாவிகளில் பேச்சு அறிதல் வேலை செய்யாது. இந்தத் தளத்தை Safari-இல் திறங்கள்.", vProcessing: "⏳ அறிகிறது…", vKbMode: "விசைப்பலகைக் குரல் உள்ளீட்டைப் பயன்படுத்து (இணையப் பேச்சு அறிதல் வேலை செய்யாவிட்டால்)", vKbHint: "இங்கே அழுத்தி விசைப்பலகையின் 🎤 பயன்படுத்துங்கள்", vKbSwitched: "இந்தத் தொலைபேசியில் இணையப் பேச்சு அறிதல் வேலை செய்யவில்லை, எனவே விசைப்பலகைக் குரல் உள்ளீடு இயக்கப்பட்டது: 🎤 அழுத்தி, விசைப்பலகையின் (எ.கா. Gboard) ஒலிவாங்கியில் \"பெயர் + செயல்பாடு\" சொல்லுங்கள். புள்ளிகள் தானாகச் சேரும். கீழே தேர்வை நீக்கலாம்.", vNoteLang: "தமிழ்"
+  timer: "நேரக் கணிப்பான்", timeUp: "நேரம் முடிந்தது!", minU: "நிமி", secU: "வினா", secs: n => `${n} வினாடி`, mins: n => `${n} நிமிடம்`, pause: "இடைநிறுத்து", resume: "தொடர்", start: "தொடங்கு", addMin: "+1 நிமிடம்", reset: "மீட்டமை"
 }
 };
 
@@ -181,6 +108,9 @@ function detectLang() {
   const n = (navigator.language || '').toLowerCase();
   return n.startsWith('en') ? 'en' : n.startsWith('ms') ? 'ms' : n.startsWith('ta') ? 'ta' : 'zh';
 }
+// 语音功能已移除：清掉它以前存在浏览器里的设置（包括老师填过的 AI 密钥）
+try { Object.keys(localStorage).filter(k => k.startsWith('ch_voice')).forEach(k => localStorage.removeItem(k)); } catch { }
+
 let LANG = detectLang();
 let T = { ...I18N.zh, ...I18N[LANG] };
 document.documentElement.lang = HTML_LANG[LANG];
@@ -194,7 +124,6 @@ function setLang(l) {
   document.title = T.appTitle;
   render();
   if (typeof setSync === 'function' && S.sync) setSync(S.sync);
-  if (typeof voiceLangChanged === 'function') voiceLangChanged();
 }
 
 // 语言切换器：主页顶部的一排小按钮

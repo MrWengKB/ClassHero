@@ -45,5 +45,4 @@ bindReading();
 bindAward();
 bindWheel();
 bindTimer();
-voiceSync();
 const bl=$('backLater');if(bl)bl.onclick=()=>{S.data.lastBackup=S.data.changes;save();S.modal=null;render()}}
