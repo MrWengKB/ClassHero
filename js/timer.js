@@ -4,23 +4,23 @@ const fmt = s => { s = Math.max(0, Math.ceil(s)); return `${String(Math.floor(s 
 const cLeft = () => C.running ? Math.max(0, (C.endAt - Date.now()) / 1000) : C.remain;
 
 function renderTimerButton() {
-  const label = C.running || C.remain < C.total ? `⏱️ ${fmt(cLeft())}` : '⏱️ 倒计时';
-  return `<button class="btn copen${C.done ? ' cdone' : ''}" id="cOpen">${C.done ? '⏰ 时间到！' : label}</button>`;
+  const label = C.running || C.remain < C.total ? `⏱️ ${fmt(cLeft())}` : '⏱️ ' + T.timer;
+  return `<button class="btn copen${C.done ? ' cdone' : ''}" id="cOpen">${C.done ? '⏰ ' + T.timeUp : label}</button>`;
 }
 
 function renderTimer() {
   if (!C.open) return '';
   const m = Math.floor(C.total / 60), s = C.total % 60, editable = !C.running && C.remain === C.total;
   return `<div class="mdo" id="cOverlay"><div class="mdc wmd" style="border-color:#2A9D8F">
-    <div class="fx jb ac mb"><h2 class="tgn">⏱️ 倒计时</h2><button class="wx" id="cClose" title="关闭">✖</button></div>
-    <div class="cring" id="cRing"><div class="cdisp${C.done ? ' cdone' : ''}" id="cDisp">${C.done ? '时间到！' : fmt(cLeft())}</div></div>
+    <div class="fx jb ac mb"><h2 class="tgn">⏱️ ${T.timer}</h2><button class="wx" id="cClose" title="${T.close}">✖</button></div>
+    <div class="cring" id="cRing"><div class="cdisp${C.done ? ' cdone' : ''}" id="cDisp">${C.done ? T.timeUp : fmt(cLeft())}</div></div>
     ${editable ? `<div class="fx jc ac fw mb" style="gap:6px">
-      <input class="inp cnum" id="cMin" type="number" min="0" max="99" value="${m}"><b>分</b>
-      <input class="inp cnum" id="cSec" type="number" min="0" max="59" value="${s}"><b>秒</b></div>
-      <div class="fx jc fw mb">${[30, 60, 180, 300, 600].map(v => `<button class="btn cpre${C.total === v ? ' on' : ''}" data-cp="${v}">${v < 60 ? v + ' 秒' : v / 60 + ' 分钟'}</button>`).join('')}</div>` : ''}
+      <input class="inp cnum" id="cMin" type="number" min="0" max="99" value="${m}"><b>${T.minU}</b>
+      <input class="inp cnum" id="cSec" type="number" min="0" max="59" value="${s}"><b>${T.secU}</b></div>
+      <div class="fx jc fw mb">${[30, 60, 180, 300, 600].map(v => `<button class="btn cpre${C.total === v ? ' on' : ''}" data-cp="${v}">${v < 60 ? T.secs(v) : T.mins(v / 60)}</button>`).join('')}</div>` : ''}
     <div class="fx jc fw">
-      ${C.running ? `<button class="btn bd" id="cPause">⏸ 暂停</button>` : `<button class="btn bs" id="cStart"${C.total ? '' : ' disabled'}>▶ ${C.remain < C.total && !C.done ? '继续' : '开始'}</button>`}
-      ${C.running || C.remain < C.total || C.done ? `<button class="btn bp" id="cAdd">+1 分钟</button><button class="btn bgr" id="cReset">↺ 重置</button>` : ''}
+      ${C.running ? `<button class="btn bd" id="cPause">⏸ ${T.pause}</button>` : `<button class="btn bs" id="cStart"${C.total ? '' : ' disabled'}>▶ ${C.remain < C.total && !C.done ? T.resume : T.start}</button>`}
+      ${C.running || C.remain < C.total || C.done ? `<button class="btn bp" id="cAdd">${T.addMin}</button><button class="btn bgr" id="cReset">↺ ${T.reset}</button>` : ''}
     </div></div></div>`;
 }
 

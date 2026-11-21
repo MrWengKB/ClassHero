@@ -12,7 +12,7 @@ const VPRESETS = {
   kimi: { label: 'Kimi（月之暗面）', fmt: 'openai', base: 'https://api.moonshot.cn/v1', model: 'moonshot-v1-8k' },
   openai: { label: 'OpenAI', fmt: 'openai', base: 'https://api.openai.com/v1', model: 'gpt-4o-mini' },
   claude: { label: 'Claude（Anthropic）', fmt: 'anthropic', base: 'https://api.anthropic.com/v1', model: 'claude-opus-5-5' },
-  custom: { label: '其他（OpenAI 兼容接口）', fmt: 'openai', base: '', model: '' }
+  custom: { label: '', fmt: 'openai', base: '', model: '' }
 };
 
 function vGetAI() {
@@ -27,6 +27,16 @@ const CN_NUM = { 一: 1, 二: 2, 两: 2, 兩: 2, 三: 3, 四: 4, 五: 5, 六: 6,
 // 去掉空格和标点、英文转小写：中文、英文、马来文、淡米尔文都按同一套方法比对
 const vNorm = t => String(t || '').toLowerCase().replace(/[\s，。,.!！?？、；;：:“”"'‘’（）()《》…~～\-_/]/g, '');
 const HAS_CJK = t => /[\u3400-\u9fff]/.test(t);
+// 记下去掉空格后每个位置是不是一个词的开头：英文名「Ali」不能从「kali」中间匹配出来
+let vStarts = [];
+function vWordStarts(raw) {
+  const out = []; let gap = true, prev = '';
+  for (const ch of String(raw || '').toLowerCase()) {
+    if (vNorm(ch) === '') { gap = true; continue; }
+    out.push(gap || HAS_CJK(ch) || HAS_CJK(prev)); gap = false; prev = ch;
+  }
+  return out;
+}
 const EN_NUM = { one: 1, once: 1, two: 2, twice: 2, three: 3, thrice: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, satu: 1, dua: 2, tiga: 3, empat: 4, lima: 5, enam: 6, tujuh: 7, lapan: 8, sembilan: 9, sepuluh: 10 };
 const vNum = t => {
   if (EN_NUM[t]) return EN_NUM[t];
@@ -47,7 +57,7 @@ function vFind(text, used, needle) {
   const out = [];
   for (let i = text.indexOf(needle); i >= 0; i = text.indexOf(needle, i + 1)) {
     let free = true; for (let k = i; k < i + needle.length; k++) if (used[k]) { free = false; break; }
-    if (free) out.push(i);
+    if (free && (HAS_CJK(needle) || vStarts[i] !== false)) out.push(i);
   }
   return out;
 }
@@ -58,7 +68,7 @@ function vFuzzy(text, used, needle) {
   const n = needle.length, out = [];
   for (let i = 0; i + n <= text.length; i++) {
     let free = true; for (let k = i; k < i + n; k++) if (used[k]) { free = false; break; }
-    if (free && vDiff(text.substr(i, n), needle) === 1) out.push(i);
+    if (free && vDiff(text.substr(i, n), needle) === 1 && (HAS_CJK(needle) || vStarts[i] !== false)) out.push(i);
   }
   return out;
 }
@@ -69,7 +79,8 @@ function vFuzzy(text, used, needle) {
  */
 function voiceParse(raw, sts, acts) {
   const text = vNorm(raw);
-  if (!text) return { ok: false, why: '没有听到内容' };
+  vStarts = vWordStarts(raw);
+  if (!text) return { ok: false, why: T.vWhyEmpty };
   const used = new Array(text.length).fill(false), toks = [];
   let fuzzy = false;
   const addTok = (type, obj, pos, len) => { vClaim(used, pos, len); toks.push({ type, obj, pos, len }); };
@@ -118,8 +129,8 @@ function voiceParse(raw, sts, acts) {
   if (!hasS()) stuList.forEach(s => { const n = vNorm(s.name); if (n.length >= fzMin(s.name)) vFuzzy(text, used, n).forEach(p => { addTok('s', s, p, n.length); fuzzy = true; }); });
   if (!hasA()) actList.forEach(a => { const n = vNorm(a.name); if (n.length >= fzMin(a.name)) vFuzzy(text, used, n).forEach(p => { addTok('a', a, p, n.length); fuzzy = true; }); });
 
-  if (!hasS()) return { ok: false, why: '没找到学生姓名' };
-  if (!hasA()) return { ok: false, why: '没找到活动名称' };
+  if (!hasS()) return { ok: false, why: T.vWhyStudent };
+  if (!hasA()) return { ok: false, why: T.vWhyActivity };
 
   // 分组：连续的名字算一组，后面跟着的活动属于这组；下一个名字开始新的一组
   toks.sort((a, b) => a.pos - b.pos);
@@ -139,7 +150,7 @@ function voiceParse(raw, sts, acts) {
   }
   // 「王小明听写满分，李华也是」——没说活动的名字沿用上一组的活动
   groups.forEach((g, i) => { if (!g.acts.length && i > 0) g.acts = groups[i - 1].acts; });
-  if (groups.some(g => !g.stus.length || !g.acts.length)) return { ok: false, why: '学生和活动没能对应上' };
+  if (groups.some(g => !g.stus.length || !g.acts.length)) return { ok: false, why: T.vWhyPair };
 
   // 每组的范围文字里找「扣/减」和「N次」（把名字、活动名先挖掉，免得活动名里的数字被误读）
   const masked = text.split('').map((c, i) => used[i] ? '|' : c).join('');
@@ -165,11 +176,11 @@ function voiceApply(ops, prefix) {
     }
     if (n) done.push({ ...o, n });
   });
-  if (!done.length) { vShow('⚠️ 没有可以扣的分（次数已经是 0）', 'err'); return; }
-  const line = done.map(o => `${o.s.name} · ${o.a.name} ${o.minus ? '−' : '+'}${o.a.pointValue * o.n}${o.n > 1 ? `（${o.n} 次）` : ''}`).join('；');
+  if (!done.length) { vShow(T.vNothingToRemove, 'err'); return; }
+  const line = done.map(o => `${o.s.name} · ${o.a.name} ${o.minus ? '−' : '+'}${o.a.pointValue * o.n}${o.n > 1 ? T.vTimes(o.n) : ''}`).join(T.vLineSep);
   const undo = () => {
     done.forEach(o => { for (let k = 0; k < o.n; k++) o.minus ? awardAdd(o.s, o.a) : awardRemove(o.s, o.a); });
-    inc(); render(); vShow('↩ 已撤销：' + line, 'ok');
+    inc(); render(); vShow(T.vUndone(line), 'ok');
   };
   if (done.length === 1) S.pop = done[0].s.id + '|' + done[0].a.id;
   inc(); render();
@@ -178,14 +189,13 @@ function voiceApply(ops, prefix) {
 }
 
 function vExample() {
-  const n = gSts()[0]?.name || '王小明', a = gActs()[0]?.name || '听写满分';
+  const n = gSts()[0]?.name || (LANG === 'zh' ? '王小明' : 'Ali'), a = gActs()[0]?.name || (LANG === 'zh' ? '听写满分' : 'Spelling');
   return HAS_CJK(n + a) ? n + a : n + ' ' + a;
 }
-const VKW = { zh: '「扣」「两次」「全班」', en: '"minus" "twice" "whole class"', ms: '"tolak" "dua kali" "semua"', ta: '"கழி" "2 முறை" "அனைவரும்"' };
 function vHelp() {
   const sts = gSts(), acts = gActs();
   const ex = vExample();
-  return `请按「学生姓名 + 活动名称」来说，例如「${ex}」。` + (acts.length ? `本班活动：${acts.map(a => a.name).join('、')}。` : '');
+  return T.vHelp(ex) + (acts.length ? ' ' + T.vActsList(acts.map(a => a.name).join(T.vSep)) : '');
 }
 
 async function voiceHandle(alts) {
@@ -193,16 +203,16 @@ async function voiceHandle(alts) {
   if (!alts.length) return;
   V.heard = alts[0];
   const sts = gSts(), acts = gActs();
-  if (!sts.length || !acts.length) { vShow('⚠️ 本班还没有学生或活动，先在「管理」页添加。', 'err'); return; }
+  if (!sts.length || !acts.length) { vShow(T.vNoData, 'err'); return; }
   // 识别器给的几个候选都试一遍，同音字常常在第二、三个候选里
   for (const t of alts) {
     const r = voiceParse(t, sts, acts);
-    if (r.ok) { V.heard = t; voiceApply(r.ops, r.fuzzy ? '✅（按近似读音匹配）' : '✅ '); return; }
+    if (r.ok) { V.heard = t; voiceApply(r.ops, r.fuzzy ? T.vFuzzy : '✅ '); return; }
   }
   const why = voiceParse(alts[0], sts, acts).why;
   const ai = vGetAI();
-  if (!ai) { vShow(`🤔 没听懂（${why}）。${vHelp()} 想说得更随意，可以点 ⚙️ 填写 AI 接口。`, 'err'); return; }
-  V.busy = true; vShow('🤖 规则没对上，正在请 AI 理解…', 'busy');
+  if (!ai) { vShow(T.vNotUnderstood(why, vHelp()), 'err'); return; }
+  V.busy = true; vShow(T.vAskingAI, 'busy');
   try {
     const res = await voiceAI(ai, alts[0], sts, acts);
     const ops = [];
@@ -213,21 +223,21 @@ async function voiceHandle(alts) {
       const times = Math.min(10, Math.max(1, parseInt(x.times) || 1));
       list.forEach(s => ops.push({ s, a, times, minus: !!x.minus }));
     });
-    if (ops.length) voiceApply(ops, '🤖 AI 理解为：');
-    else vShow(`🤔 AI 也没看懂${res.note ? '（' + res.note + '）' : ''}。${vHelp()}`, 'err');
+    if (ops.length) voiceApply(ops, T.vAIResult);
+    else vShow(T.vAINo(res.note, vHelp()), 'err');
   } catch (e) {
-    vShow(`⚠️ AI 接口出错：${e.message}。${vHelp()}`, 'err');
+    vShow(T.vAIError(e.message, vHelp()), 'err');
   } finally { V.busy = false; vPaint(); }
 }
 
 // ───────────── AI 兜底 ─────────────
-const VSYS = `你是小学课堂积分助手。老师会口头说一句加分或扣分指令（来自语音识别，可能有同音错别字）。老师可能用中文、English、Bahasa Melayu、தமிழ் 或其他语言，也可能几种语言混着说。
+const VSYS = () => `你是小学课堂积分助手。老师会口头说一句加分或扣分指令（来自语音识别，可能有同音错别字）。老师可能用中文、English、Bahasa Melayu、தமிழ் 或其他语言，也可能几种语言混着说。
 请根据给出的学生名单和活动列表，判断老师想给哪些学生的哪个活动加（或扣）几次。
 规则：
 - student 必须原样使用名单里的姓名；如果是全班，写 "全班"。
 - activity 必须原样使用活动列表里的名称；选意思最接近的那个。
 - times 是次数（整数，默认 1）；扣分、撤销时 minus 为 true。
-- 无法判断时 actions 为空数组，在 note 里用一句中文说明原因。
+- 无法判断时 actions 为空数组，在 note 里用一句${T.vNoteLang}说明原因。
 只输出 JSON，不要输出其他文字，格式：{"actions":[{"student":"","activity":"","times":1,"minus":false}],"note":""}`;
 
 async function voiceAI(cfg, said, sts, acts) {
@@ -237,7 +247,7 @@ async function voiceAI(cfg, said, sts, acts) {
   let text = '';
   try {
     if (cfg.fmt === 'anthropic') {
-      const body = { model: cfg.model, max_tokens: 1024, system: VSYS, messages: [{ role: 'user', content: user }] };
+      const body = { model: cfg.model, max_tokens: 1024, system: VSYS(), messages: [{ role: 'user', content: user }] };
       if (/^claude-(opus|sonnet|haiku)-5|^claude-(fable|mythos)/.test(cfg.model)) body.output_config = { effort: 'low' };
       const r = await fetch(base + '/messages', {
         method: 'POST', signal: ctl.signal,
@@ -246,57 +256,58 @@ async function voiceAI(cfg, said, sts, acts) {
       });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j.error?.message || 'HTTP ' + r.status);
-      if (j.stop_reason === 'refusal') throw new Error('模型拒绝回答');
+      if (j.stop_reason === 'refusal') throw new Error(T.vErrRefusal);
       text = (j.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
     } else {
       const r = await fetch(base + '/chat/completions', {
         method: 'POST', signal: ctl.signal,
         headers: { 'content-type': 'application/json', authorization: 'Bearer ' + cfg.key },
-        body: JSON.stringify({ model: cfg.model, messages: [{ role: 'system', content: VSYS }, { role: 'user', content: user }] })
+        body: JSON.stringify({ model: cfg.model, messages: [{ role: 'system', content: VSYS() }, { role: 'user', content: user }] })
       });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j.error?.message || 'HTTP ' + r.status);
       text = j.choices?.[0]?.message?.content || '';
     }
   } catch (e) {
-    if (e.name === 'AbortError') throw new Error('等待超时');
-    if (e instanceof TypeError) throw new Error('连不上接口（网址不对，或该服务不允许网页直接调用）');
+    if (e.name === 'AbortError') throw new Error(T.vErrTimeout);
+    if (e instanceof TypeError) throw new Error(T.vErrConnect);
     throw e;
   } finally { clearTimeout(tm); }
   const a = text.indexOf('{'), b = text.lastIndexOf('}');
-  if (a < 0 || b < a) throw new Error('AI 返回的不是 JSON');
+  if (a < 0 || b < a) throw new Error(T.vErrJson);
   return JSON.parse(text.slice(a, b + 1));
 }
 
 // ───────────── 语音识别 ─────────────
-// 识别语言：每个班单独记住（中文课、英文课、马来文课、淡米尔文课可以各用各的）。
-// 没选过时按本班活动名猜：有汉字就用普通话，否则用英语。
-const VLANGS = [['zh-CN', '普通话'], ['zh-TW', '國語（台灣）'], ['zh-HK', '粵語'], ['en-US', 'English'], ['en-GB', 'English (UK)'], ['ms-MY', 'Bahasa Melayu'], ['ta-SG', 'தமிழ்']];
-const vLangKey = () => 'ch_voice_lang_' + (gCls()?.id || '');
+// 识别语言默认跟着界面语言走（华文→普通话，English→英语，Melayu→马来语，தமிழ்→淡米尔语）。
+// 面板里的下拉框可以换成同一种语言的其他口音或别的语言，按界面语言分别记住。
+const VLANGS = [['zh-CN', '普通话'], ['zh-TW', '國語（台灣）'], ['zh-HK', '粵語'], ['en-US', 'English (US)'], ['en-GB', 'English (UK)'], ['ms-MY', 'Bahasa Melayu'], ['ta-SG', 'தமிழ் (சிங்கப்பூர்)'], ['ta-IN', 'தமிழ் (இந்தியா)']];
+const VL_DEFAULT = { zh: 'zh-CN', en: 'en-US', ms: 'ms-MY', ta: 'ta-SG' };
+const VL_UI = { 'zh-CN': 'zh', 'zh-TW': 'zh', 'zh-HK': 'zh', 'en-US': 'en', 'en-GB': 'en', 'ms-MY': 'ms', 'ta-SG': 'ta', 'ta-IN': 'ta' };
+const vLangKey = () => 'ch_voice_lang_' + LANG;
 function vLang() {
-  try { const v = localStorage.getItem(vLangKey()); if (v && VLANGS.some(l => l[0] === v)) return v; } catch { }
-  const names = gActs().map(a => a.name).join('') || gSts().map(x => x.name).join('');
-  return !names || HAS_CJK(names) ? 'zh-CN' : 'en-US';
+  try { const v = localStorage.getItem(vLangKey()); if (v && VL_UI[v]) return v; } catch { }
+  return VL_DEFAULT[LANG] || 'zh-CN';
 }
-const VSR = window.SpeechRecognition || window.webkitSpeechRecognition;
+function voiceLangChanged() { V.rec?.abort(); V.result = ''; V.heard = ''; vPaint(); const m = $('vmic'); if (m) m.title = T.vMicTitle; }
 
 function voiceListen() {
   if (V.listening) { V.rec?.stop(); return; }
-  if (!VSR) { vShow('⚠️ 这个浏览器不支持语音识别，请用电脑版 Chrome 或 Edge。也可以在下面直接打字。', 'err'); return; }
+  if (!VSR) { vShow(T.vNoSR, 'err'); return; }
   const rec = new VSR();
   rec.lang = vLang(); rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 5;
   let final = null;
-  rec.onstart = () => { V.listening = true; V.heard = ''; vShow('👂 正在听…请说「姓名 + 活动」', 'busy'); };
+  rec.onstart = () => { V.listening = true; V.heard = ''; vShow(T.vListening, 'busy'); };
   rec.onresult = e => {
     const r = e.results[e.results.length - 1];
     V.heard = r[0].transcript; vPaint();
     if (r.isFinal) final = Array.from(r, x => x.transcript);
   };
   rec.onerror = e => {
-    const m = { 'not-allowed': '麦克风权限被拒绝，请在地址栏左侧允许使用麦克风', 'service-not-allowed': '麦克风权限被拒绝，请在地址栏左侧允许使用麦克风', 'no-speech': '没听到声音，再点一次 🎤 试试', 'audio-capture': '没有找到麦克风', network: '语音识别需要联网，请检查网络' }[e.error];
-    if (e.error !== 'aborted') vShow('⚠️ ' + (m || '语音识别出错：' + e.error), 'err');
+    const m = { 'not-allowed': T.vMicDenied, 'service-not-allowed': T.vMicDenied, 'no-speech': T.vNoSpeech, 'audio-capture': T.vNoMic, network: T.vNetErr }[e.error];
+    if (e.error !== 'aborted') vShow('⚠️ ' + (m || T.vSRErr(e.error)), 'err');
   };
-  rec.onend = () => { V.listening = false; V.rec = null; vPaint(); if (final) voiceHandle(final); else if (V.kind === 'busy' && !V.busy) vShow('没听清，再点一次 🎤 试试', 'err'); };
+  rec.onend = () => { V.listening = false; V.rec = null; vPaint(); if (final) voiceHandle(final); else if (V.kind === 'busy' && !V.busy) vShow(T.vNotHeard, 'err'); };
   V.rec = rec;
   try { rec.start(); } catch { /* 已在识别中 */ }
 }
@@ -308,7 +319,7 @@ function vEnsure() {
   if ($('vfab')) return;
   const fab = document.createElement('div');
   fab.id = 'vfab';
-  fab.innerHTML = `<div id="vpanel"></div><button id="vmic" title="语音加分：点一下说「王小明听写满分」">🎤</button>`;
+  fab.innerHTML = `<div id="vpanel"></div><button id="vmic" title="${esc(T.vMicTitle)}">🎤</button>`;
   document.body.appendChild(fab);
   $('vmic').onclick = () => { V.open = true; voiceListen(); vPaint(); };
 }
@@ -321,11 +332,11 @@ function vPaint() {
   if (!V.open) { p.className = ''; p.innerHTML = ''; return; }
   const ai = vGetAI();
   p.className = 'show';
-  p.innerHTML = `<div class="fx jb ac"><b>🎤 语音加分</b><span class="fx ac"><select id="vlang" class="vlsel" title="识别语言（每个班分别记住）">${VLANGS.map(([k, n]) => `<option value="${k}"${vLang() === k ? ' selected' : ''}>${n}</option>`).join('')}</select><button class="vic" id="vset" title="AI 设置">⚙️</button><button class="vic" id="vx" title="关闭">✖</button></span></div>
+  p.innerHTML = `<div class="fx jb ac"><b>🎤 ${T.vTitle}</b><span class="fx ac"><select id="vlang" class="vlsel" title="${T.vLangTitle}">${VLANGS.map(([k, n]) => `<option value="${k}"${vLang() === k ? ' selected' : ''}>${n}</option>`).join('')}</select><button class="vic" id="vset" title="${T.vSettings}">⚙️</button><button class="vic" id="vx" title="${T.close}">✖</button></span></div>
     ${V.heard ? `<div class="vheard">「${esc(V.heard)}」</div>` : ''}
-    ${V.result ? `<div class="vres ${V.kind}">${esc(V.result)}</div>` : `<div class="vres">点 🎤 后说「姓名 + 活动」，例如「${esc(vExample())}」。可以一次说几个人，也可以说 ${esc(VKW[vLang().slice(0, 2)] || VKW.zh)}。</div>`}
-    <form id="vform" class="fx ac" style="gap:6px;margin-top:8px"><input class="inp" id="vtxt" placeholder="也可以在这里打字" autocomplete="off" style="margin:0;padding:8px;font-size:.9rem"><button class="btn bp" style="margin:0;flex:none">发送</button></form>
-    <div class="tgr" style="font-size:.7rem;margin-top:6px">${ai ? `🤖 规则看不懂时会请 AI 理解（${esc(VPRESETS[ai.preset]?.label || ai.model)}）` : '只按规则理解。点 ⚙️ 可以接入自己的 AI，说法更自由。'}</div>`;
+    ${V.result ? `<div class="vres ${V.kind}">${esc(V.result)}</div>` : `<div class="vres">${esc(T.vIntro(vExample(), (I18N[VL_UI[vLang()]] || T).vKw))}</div>`}
+    <form id="vform" class="fx ac" style="gap:6px;margin-top:8px"><input class="inp" id="vtxt" placeholder="${T.vTypeHere}" autocomplete="off" style="margin:0;padding:8px;font-size:.9rem"><button class="btn bp" style="margin:0;flex:none">${T.vSend}</button></form>
+    <div class="tgr" style="font-size:.7rem;margin-top:6px">${ai ? esc(T.vAIOn(VPRESETS[ai.preset]?.label || T.vOther)) : T.vAIOff}</div>`;
   $('vlang').onchange = e => { try { localStorage.setItem(vLangKey(), e.target.value); } catch { } V.rec?.abort(); };
   $('vx').onclick = () => { V.open = false; V.rec?.abort(); vPaint(); };
   $('vset').onclick = () => { V.setOpen = true; V.testMsg = ''; vPaintSet(); };
@@ -338,30 +349,30 @@ function vPaintSet() {
   if (!ov) { ov = document.createElement('div'); ov.id = 'vsetov'; ov.className = 'mdo'; document.body.appendChild(ov); }
   const c = vLoadAI();
   ov.innerHTML = `<div class="mdc wmd" style="border-color:#9B5DE5">
-    <div class="fx jb ac mb"><h3 class="tpu">⚙️ 语音指令 · AI 设置（可选）</h3><button class="wx" id="vsClose" title="关闭">✖</button></div>
-    <p class="tgr mb" style="font-size:.8rem">不填也能用：按「学生姓名 + 活动名称」说就行。填了以后，规则看不懂的话会交给 AI 理解，比如「小明今天听写全对，给他加一下」。</p>
-    <label class="vlb">服务商</label><select class="inp" id="vsPre">${Object.entries(VPRESETS).map(([k, v]) => `<option value="${k}"${c.preset === k ? ' selected' : ''}>${v.label}</option>`).join('')}</select>
-    <label class="vlb">接口地址</label><input class="inp" id="vsBase" value="${esc(c.base || '')}" placeholder="https://…/v1">
-    <label class="vlb">模型名称</label><input class="inp" id="vsModel" value="${esc(c.model || '')}">
-    <label class="vlb">API 密钥</label><input class="inp" id="vsKey" type="password" value="${esc(c.key || '')}" placeholder="sk-…" autocomplete="off">
-    <p class="tgr mb" style="font-size:.75rem">🔒 密钥只保存在这台电脑的浏览器里，不会上传到课堂英雄或 Google 表格，换电脑需要重新填写。使用 AI 时，你说的那句话、本班学生姓名和活动名称会发送给所选的服务商。</p>
+    <div class="fx jb ac mb"><h3 class="tpu">${T.vSetTitle}</h3><button class="wx" id="vsClose" title="${T.close}">✖</button></div>
+    <p class="tgr mb" style="font-size:.8rem">${T.vSetIntro}</p>
+    <label class="vlb">${T.vProvider}</label><select class="inp" id="vsPre">${Object.entries(VPRESETS).map(([k, v]) => `<option value="${k}"${c.preset === k ? ' selected' : ''}>${v.label || T.vOther}</option>`).join('')}</select>
+    <label class="vlb">${T.vBase}</label><input class="inp" id="vsBase" value="${esc(c.base || '')}" placeholder="https://…/v1">
+    <label class="vlb">${T.vModel}</label><input class="inp" id="vsModel" value="${esc(c.model || '')}">
+    <label class="vlb">${T.vKey}</label><input class="inp" id="vsKey" type="password" value="${esc(c.key || '')}" placeholder="sk-…" autocomplete="off">
+    <p class="tgr mb" style="font-size:.75rem">${T.vPrivacy}</p>
     ${V.testMsg ? `<div class="vres ${V.testMsg.startsWith('✅') ? 'ok' : 'err'} mb">${esc(V.testMsg)}</div>` : ''}
-    <button class="btn bs" id="vsSave">保存</button><button class="btn bp" id="vsTest">测试连接</button><button class="btn bgr" id="vsClear">清除</button></div>`;
+    <button class="btn bs" id="vsSave">${T.save}</button><button class="btn bp" id="vsTest">${T.vTest}</button><button class="btn bgr" id="vsClear">${T.vClear}</button></div>`;
   const read = () => ({ preset: $('vsPre').value, fmt: VPRESETS[$('vsPre').value].fmt, base: $('vsBase').value.trim(), model: $('vsModel').value.trim(), key: $('vsKey').value.trim() });
   const store = cfg => { try { localStorage.setItem(VKEY, JSON.stringify(cfg)); return true; } catch { return false; } };
   ov.onclick = e => { if (e.target === ov) { V.setOpen = false; vPaintSet(); } };
   $('vsClose').onclick = () => { V.setOpen = false; vPaintSet(); };
   $('vsPre').onchange = () => { const p = VPRESETS[$('vsPre').value]; $('vsBase').value = p.base; $('vsModel').value = p.model; };
-  $('vsSave').onclick = () => { store(read()); V.setOpen = false; vPaintSet(); vPaint(); toast(vGetAI() ? '✅ 已保存 AI 设置' : '已保存（未填密钥，只按规则理解）'); };
-  $('vsClear').onclick = () => { try { localStorage.removeItem(VKEY); } catch { } V.testMsg = '已清除，只按规则理解'; vPaintSet(); vPaint(); };
+  $('vsSave').onclick = () => { store(read()); V.setOpen = false; vPaintSet(); vPaint(); toast(vGetAI() ? T.vSaved : T.vSavedNoKey); };
+  $('vsClear').onclick = () => { try { localStorage.removeItem(VKEY); } catch { } V.testMsg = T.vCleared; vPaintSet(); vPaint(); };
   $('vsTest').onclick = async () => {
     const cfg = read();
-    if (!cfg.key || !cfg.base || !cfg.model) { V.testMsg = '⚠️ 请填写接口地址、模型名称和密钥'; vPaintSet(); return; }
-    store(cfg); V.testMsg = '⏳ 正在测试…'; vPaintSet();
+    if (!cfg.key || !cfg.base || !cfg.model) { V.testMsg = T.vFillAll; vPaintSet(); return; }
+    store(cfg); V.testMsg = T.vTesting; vPaintSet();
     const sts = gSts().length ? gSts() : [{ name: '王小明' }], acts = gActs().length ? gActs() : [{ name: '听写满分', pointValue: 10 }];
     try {
       const r = await voiceAI(cfg, `${sts[0].name}${acts[0].name}`, sts, acts);
-      V.testMsg = `✅ 连接成功，AI 返回了 ${(r.actions || []).length} 条操作（测试不会加分）`;
+      V.testMsg = T.vTestOk((r.actions || []).length);
     } catch (e) { V.testMsg = '⚠️ ' + e.message; }
     vPaintSet(); vPaint();
   };

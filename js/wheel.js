@@ -14,7 +14,7 @@ function wheelSyncClass() {
 
 // 管理页最下方的按钮
 function renderWheelButton() {
-  return `<div class="tc" style="margin:8px 0 24px"><button class="btn wopen" id="wOpen">🎯 幸运转盘</button>${renderTimerButton()}</div>`;
+  return `<div class="tc" style="margin:8px 0 24px"><button class="btn wopen" id="wOpen">🎯 ${T.wheel}</button>${renderTimerButton()}</div>`;
 }
 
 function renderWheel() {
@@ -22,14 +22,14 @@ function renderWheel() {
   wheelSyncClass();
   const remaining = W.items.filter(x => !W.picked.includes(x));
   return `<div class="mdo" id="wOverlay"><div class="mdc wmd" id="wheelCard" style="border-color:#F15BB5">
-    <div class="fx jb ac mb"><h2 class="tpk">🎯 幸运转盘</h2><button class="wx" id="wClose" title="关闭">✖</button></div>
-    <textarea class="inp" id="wText" style="min-height:90px" placeholder="每行一个，${WMIN}-${WMAX} 项">${esc(W.text)}</textarea>
-    <div class="tgr mb${W.msg.startsWith('⚠️') ? ' werr' : ''}" style="font-size:.8rem;margin-top:-6px">${esc(W.msg || '✏️ 默认是本班学生名单，也可以改成任何选项，每行一个')}</div>
-    <div class="fx fw jc"><button class="btn bpu" id="wMake">✨ 生成转盘</button><button class="btn bgr" id="wFill">👥 用本班学生名单</button></div>
+    <div class="fx jb ac mb"><h2 class="tpk">🎯 ${T.wheel}</h2><button class="wx" id="wClose" title="${T.close}">✖</button></div>
+    <textarea class="inp" id="wText" style="min-height:90px" placeholder="${T.wheelPh(WMIN, WMAX)}">${esc(W.text)}</textarea>
+    <div class="tgr mb${W.msg.startsWith('⚠️') ? ' werr' : ''}" style="font-size:.8rem;margin-top:-6px">${esc(W.msg || T.wheelTip)}</div>
+    <div class="fx fw jc"><button class="btn bpu" id="wMake">${T.wheelMake}</button><button class="btn bgr" id="wFill">${T.wheelFill}</button></div>
     ${W.items.length ? `<div class="wbox"><div class="wptr"></div><canvas id="wCanvas"></canvas>
-      <button class="wspin${W.spinning ? ' dis' : ''}" id="wSpin" title="转动">▶</button></div>
+      <button class="wspin${W.spinning ? ' dis' : ''}" id="wSpin" title="${T.spin}">▶</button></div>
       <div class="tc" style="min-height:44px">${W.result ? `<span class="wres">🎉 ${esc(W.result)}</span>` : ''}</div>
-      ${W.picked.length ? `<div class="wrem"><h3 class="tpk tc mb">${remaining.length ? `📋 还没抽到（${remaining.length}/${W.items.length}）` : '🎊 全部都抽到过了！'}</h3>
+      ${W.picked.length ? `<div class="wrem"><h3 class="tpk tc mb">${remaining.length ? T.notPicked(remaining.length, W.items.length) : T.allPicked}</h3>
         ${remaining.length ? `<div class="wlist">${remaining.map(x => `<span>${esc(x)}</span>`).join('')}</div>` : ''}</div>` : ''}` : ''}
   </div></div>`;
 }
@@ -86,9 +86,9 @@ function bindWheel() {
   const t = $('wText'); if (t) t.oninput = e => { W.text = e.target.value; W.edited = true; };
   const mk = $('wMake'); if (mk) mk.onclick = () => {
     const lines = W.text.split('\n').map(x => x.trim()).filter(Boolean);
-    if (lines.length < WMIN) { W.msg = `⚠️ 至少需要 ${WMIN} 项`; return render(); }
-    if (lines.length > WMAX) { W.msg = `⚠️ 最多 ${WMAX} 项`; return render(); }
-    Object.assign(W, { items: lines, picked: [], result: '', msg: `✅ 共 ${lines.length} 项，点中间的按钮转动` });
+    if (lines.length < WMIN) { W.msg = T.wheelMin(WMIN); return render(); }
+    if (lines.length > WMAX) { W.msg = T.wheelMax(WMAX); return render(); }
+    Object.assign(W, { items: lines, picked: [], result: '', msg: T.wheelReady(lines.length) });
     render();
   };
   const fl = $('wFill'); if (fl) fl.onclick = () => { W.edited = false; W.msg = ''; render(); };

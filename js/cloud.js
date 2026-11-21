@@ -3,7 +3,7 @@ const SESSION_KEY = 'chSess', DIRTY_KEY = 'chDirty';
 const dirtyKey = () => DIRTY_KEY + '_' + (S.user && S.user.id);
 const setDirty = v => { try { v ? localStorage.setItem(dirtyKey(), '1') : localStorage.removeItem(dirtyKey()); } catch {} };
 const isDirty = () => localStorage.getItem(dirtyKey()) === '1';
-const ERR = { username_taken: '用户名已存在', bad_login: '用户名或密码错误', missing_fields: '请填写所有字段', bad_token: '登录已失效，请重新登录', network: '无法连接服务器，请检查网络' };
+const ERR = () => ({ username_taken: T.userExists, bad_login: T.wrongLogin, missing_fields: T.fillAll, bad_token: T.errBadToken, network: T.errNetwork });
 let _cloudTimer = null, _cloudBusy = false, _cloudAgain = false;
 
 function api(action, payload) {
@@ -17,7 +17,7 @@ function setSync(state) {
   S.sync = state;
   const el = $('sync');
   if (!el) return;
-  const txt = { pending: '⏳ 待同步', saving: '☁️ 同步中…', saved: '✅ 已同步到 Google Sheet', error: '⚠️ 同步失败，点此重试', loading: '☁️ 读取中…' };
+  const txt = { pending: T.syncPending, saving: T.syncSaving, saved: T.syncSaved, error: T.syncError, loading: T.syncLoading };
   el.textContent = txt[state] || '';
   el.className = state === 'error' ? 'err' : '';
   el.onclick = state === 'error' ? () => cloudPush() : null;
@@ -39,7 +39,7 @@ async function cloudPush() {
   setSync('saving');
   const r = await api('save', { token: S.token, data: S.data });
   _cloudBusy = false;
-  if (r.error === 'bad_token') { alert(ERR.bad_token); return forceLogout(); }
+  if (r.error === 'bad_token') { alert(T.errBadToken); return forceLogout(); }
   if (_cloudAgain) { _cloudAgain = false; return cloudPush(); }
   if (r.ok) setDirty(false);
   setSync(r.ok ? 'saved' : 'error');
@@ -63,7 +63,7 @@ function localDataFor(username) {
 async function cloudPull() {
   setSync('loading');
   const r = await api('load', { token: S.token });
-  if (r.error === 'bad_token') { alert(ERR.bad_token); return forceLogout(); }
+  if (r.error === 'bad_token') { alert(T.errBadToken); return forceLogout(); }
   if (!r.ok) { setSync('error'); return; }
   // 本机有还没传上去的改动（比如断网时改的），以本机为准补传
   if (isDirty()) { render(); return cloudPush(); }
@@ -82,7 +82,7 @@ async function cloudPull() {
 async function cloudAuth(action, payload, btn) {
   if (btn) { btn.disabled = true; btn.textContent = '…'; }
   const r = await api(action, payload);
-  if (!r.ok) { alert(ERR[r.error] || r.error); render(); return; }
+  if (!r.ok) { alert(ERR()[r.error] || r.error); render(); return; }
   startSession(r.user, r.token);
   S.login = { u: '', p: '' }; S.reg = { n: '', u: '', p: '' };
   S.data = { activeClassId: null, classes: [], changes: 0, lastBackup: 0 };
